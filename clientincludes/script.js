@@ -60,6 +60,7 @@ $(function() {
 		$("#grid").find(".maxrow").text(numofcellsy);
 
 		recalculate_size($("#grid"));
+		denote_visible($("#grid"));
 
 	}
 
@@ -73,24 +74,88 @@ $(function() {
 	}
 
 	function addcelltogrid(row,column,posx,posy,gridel){
-		gridel.append("<div class='cell row-"+row+" col-"+column+"' style='left:"+posx+"px; top:"+posy+"px'></div>");
+		gridel.append("<div class='cell row-"+row+" col-"+column+"' style='left:"+posx+"px; top:"+posy+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
 	}
+
+
+	function centerpos(element){
+		var offset = element.offset();
+		var width = element.width();
+		var height = element.height();
+		var position = new Object();
+		position.centerX = offset.left + width / 2;
+		position.centerY = offset.top + height / 2;
+		return position;
+	}
+
+
+	function denote_visible(elem){
+		var top = $("#range").offset().top;
+		var left = $("#range").offset().left;
+		var bottom = top + $("#range").height();
+		var right = left + $("#range").width();
+		$(".visible").toggleClass("visible");
+		elem.find(".cell").each(function(){
+			var centerX = centerpos($(this)).centerX;
+			var centerY = centerpos($(this)).centerY;
+			if (centerY>=top && centerY <= bottom && centerX>=left && centerX<=right){
+			//if it visually contains it
+				$(this).toggleClass("visible");
+			}
+		});
+	}
+	//finds the visible boundaries of the viewport from the  visible cells and returns a tuple f min/max rows/columns
+	function find_visible_boundaries(){
+
+		var minrow = 100000000000;
+		var maxrow = 0;
+		var mincol = 100000000000;
+		var maxcol = 0;
+		$(".visible").each(function(){
+			var row = parseInt($(this).find(".row").text());
+			var col = parseInt($(this).find(".col").text());
+			if (row<minrow) { minrow = row;}
+			if (row>maxrow) { maxrow = row;}
+			if (col<mincol) { mincol = col;}
+			if (col>maxcol) { maxcol = col;}
+		});
+		var tuple = new Object();
+		tuple.minrow = minrow;
+		tuple.maxrow = maxrow;
+		tuple.mincol = mincol;
+		tuple.maxcol = maxcol;
+		return tuple;
+	}
+
 	
+	function expand(){
+		var leftdist = $("#viewport").offset().left-$("#range").offset().left;					
+		var topdist = $("#viewport").offset().top-$("#range").offset().top;
+		var rightdist= viewportwidth-leftdist - $("#viewport").width();
+		var bottomdist = viewportheight-topdist - $("#viewport").height();
+		console.log(Math.ceil(rightdist/(cellwidth+1))+"cells from the right");
+		console.log(Math.ceil(leftdist/(cellwidth+1))+"cells from the left");
+		console.log(Math.ceil(bottomdist/(cellheight+1))+"cells from the bottom");
+		console.log(Math.ceil(topdist/(cellheight+1))+"cells from the top");
+		
+
+	}
+
 	$(document).ready(function() {
 			$("#viewport").draggable(
 				{
 					stop: function(){
-							leftdist = $("#viewport").offset().left-$("#range").offset().left;
 							
-							topdist = $("#viewport").offset().top-$("#range").offset().top;
-							rightdist= viewportwidth-leftdist - $("#viewport").width();
-							bottomdist = viewportheight-topdist - $("#viewport").height();
-							console.log(rightdist);
+						expand();	
+						denote_visible($("#grid"));	
+						var positions = find_visible_boundaries();	
+						console.log(positions);	
 					}
 				}
 			);
 			recalculate_size($("#grid"));
 			console.log("ready");
+
 			initialize($("#grid"));
 			//autogrowupgrade();
 			//document.execCommand("enableObjectResizing", false, false);
@@ -100,3 +165,4 @@ $(function() {
 });
 
 
+	
