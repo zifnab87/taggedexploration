@@ -4,4 +4,9 @@ body {
 	margin: 0px;
 }
 
-
+#range {
+    width:400px;
+    height:400px;
+    overflow:hidden;
+    border:1px solid black;
+}
