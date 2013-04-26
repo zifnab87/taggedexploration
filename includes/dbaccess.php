@@ -30,3 +30,29 @@ function insert_point($x,$y,$label){ //insert url in database
 	}
 	
 }
+
+function get_point_by_position($x,$y){
+	global $db;
+	$res=$db->query("SELECT * FROM points WHERE `x`='$x' AND `y`='$y';",0);
+	$row=mysql_fetch_array($res);
+	$point=null;
+	$point["id"] = $row["id"];
+	$point["label"] = $row["label"];
+	$point["x"] = $row["x"];
+	$point["y"] = $row["y"];
+	return $point;
+}
+
+function get_points_by_label($label){
+	global $db;
+	$res=$db->query("SELECT * FROM points WHERE `label`='$label'",0);
+	$points = array();
+	while($row=mysql_fetch_array($res)){
+		$point["id"] = $row["id"];
+		$point["label"] = $row["label"];
+		$point["x"] = $row["x"];
+		$point["y"] = $row["y"];
+		$points[]=$point;
+	}
+	return $points;
+}
