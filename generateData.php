@@ -24,8 +24,8 @@ function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_dista
 	}
 
 	// fill in the rest of the points
-	for ($y = 0; $y < $yrange; ++y) {
-		for ($x = 0; $x < $xrange; ++x) {
+	for ($y = 0; $y < $yrange; ++$y) {
+		for ($x = 0; $x < $xrange; ++$x) {
 			
 		}
 	}
