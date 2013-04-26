@@ -9,6 +9,21 @@
 
 <div id="range">
     <!--<img src="map.gif" id="map" />-->
+    <div id="viewport">
+
+    	<div id="grid">
+    		<div style="display:none" class="posx">0</div>
+    		<div style="display:none" class="posy">0</div>
+    	   	<div style="display:none" class="maxcolumn">0</div>
+        	<div style="display:none" class="maxrow">0</div>
+    	</div>
+    <!--<table>
+    	<tr class="row-1"><td>10</td><td>20</td></tr>
+    	<tr class="row-2"><td width="40">10</td><td>20</td></tr>
+    	
+    </table>-->
+
+    </div>
 </div>
 
 </body>

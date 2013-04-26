@@ -2,11 +2,31 @@ ul {list-style-type:none}
 
 body {
 	margin: 0px;
+
 }
 
 #range {
-    width:400px;
-    height:400px;
+    width:800px;
+    height:600px;
     overflow:hidden;
     border:1px solid black;
+   	margin: 0 auto;
+   	margin-top: 100px;
+}
+
+#grid {
+	background-color: #000000;
+
+}
+
+#viewport{
+	float:left;
+}
+
+td,.cell {
+	background-color: #aaaaaa;
+	color: #ffffff;
+	width: 40px;
+	height: 40px;
+	position: absolute;
 }
