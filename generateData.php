@@ -1,6 +1,6 @@
 <?php
 
-function generateLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_distance) {
+function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_distance, $empty_prob, $same_prob) {
 	$grid = array(array());
 	$seeds = array();
 
@@ -29,7 +29,8 @@ function generateLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_dis
 			
 		}
 	}
-	return $grid;
+
+	// populate the database
 }
 
 ?>
