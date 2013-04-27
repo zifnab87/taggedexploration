@@ -1,5 +1,7 @@
 <?php
 
+require_once("includes/dbaccess.php");
+
 function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_distance, $empty_prob, $same_prob) {
 	$grid = array(array());
 	$seeds = array();
@@ -21,7 +23,10 @@ function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_dista
 			}
 		} while (!$isolated);
 		$seeds[] = array($x, $y);
-		$grid[$y][$x] = rand(1, $num_labels);
+		$label = rand(1, $num_labels);
+		$grid[$y][$x] = $label;
+
+		insert_point($x, $y, $label);
 	}
 
 	// fill in the rest of the points
@@ -50,7 +55,7 @@ function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_dista
 
 			// choose the label of the point
 			if (rand() / getrandmax() < $same_prob) {
-				$grid[$y][$x] = $likely_label;
+				$label = $likely_label;
 			}
 			else {
 				$label = rand(1, $num_labels - 1);
@@ -58,11 +63,13 @@ function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_dista
 					++$label;
 				}
 			}
+			$grid[$y][$x] = $label;
+
+			insert_point($x, $y, $label);
 		}
 	}
 
-	// populate the database
-	
+	return $grid;
 }
 
 ?>
