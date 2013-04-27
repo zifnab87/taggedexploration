@@ -21,16 +21,48 @@ function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_dista
 			}
 		} while (!$isolated);
 		$seeds[] = array($x, $y);
+		$grid[$y][$x] = rand(1, $num_labels);
 	}
 
 	// fill in the rest of the points
 	for ($y = 0; $y < $yrange; ++$y) {
 		for ($x = 0; $x < $xrange; ++$x) {
-			
+			// do not touch it if it is a seed point
+			if ($grid[$y][$x] > 0) {
+				continue;
+			}
+
+			// maybe this point will not have a label
+			if (rand() / getrandmax() < $empty_prob) {
+				$grid[$y][$x] = 0;
+				continue;
+			}
+
+			// find the closest seed point
+			$min_distance = $xrange * $yrange;
+			foreach ($seeds as $point) {
+				$distance = pow($x - $point[0], 2) + pow($y - $point[1], 2);
+				if ($distance < $min_distance) {
+					$min_distance = $distance;
+					$likely_label = $grid[$point[1]][$point[0]];
+				}
+			}
+
+			// choose the label of the point
+			if (rand() / getrandmax() < $same_prob) {
+				$grid[$y][$x] = $likely_label;
+			}
+			else {
+				$label = rand(1, $num_labels - 1);
+				if ($label >= $likely_label) {
+					++$label;
+				}
+			}
 		}
 	}
 
 	// populate the database
+	
 }
 
 ?>
