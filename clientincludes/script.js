@@ -114,11 +114,18 @@ $(function() {
 		$(".visible").each(function(){
 			var row = parseInt($(this).find(".row").text());
 			var col = parseInt($(this).find(".col").text());
-			if (row<minrow) { minrow = row;}
-			if (row>maxrow) { maxrow = row;}
-			if (col<mincol) { mincol = col;}
-			if (col>maxcol) { maxcol = col;}
+			if (row<=minrow) { minrow = row;}
+			if (row>=maxrow) { maxrow = row;}
+			if (col<=mincol) { mincol = col;}
+			if (col>=maxcol) { maxcol = col;}
 		});
+		//hack if
+		if (minrow == 100000000000){
+			minrow = 0;
+		}
+		if (mincol == 100000000000){
+			mincol = 0;
+		}
 		var tuple = new Object();
 		tuple.minrow = minrow;
 		tuple.maxrow = maxrow;
@@ -133,6 +140,103 @@ $(function() {
 		var topdist = $("#viewport").offset().top-$("#range").offset().top;
 		var rightdist= viewportwidth-leftdist - $("#viewport").width();
 		var bottomdist = viewportheight-topdist - $("#viewport").height();
+		denote_visible($("#grid"));	
+		var positions = find_visible_boundaries();	
+		console.log(positions);	
+		//cells from the right"
+		xrange = new Object();
+		yrange = new Object();
+		
+		/*
+		xrange.min = positions.mincol;
+		
+		yrange.min = positions.*/
+		var cellcountneededright = Math.ceil(rightdist/(cellwidth+1));
+		var cellcountneededleft = Math.ceil(leftdist/(cellwidth+1));
+		var cellcountneededbottom = Math.ceil(bottomdist/(cellheight+1));
+		var cellcountneededtop = Math.ceil(topdist/(cellheight+1));
+
+		
+
+		if (cellcountneededright>=0 && cellcountneededleft<=0){
+			xrange.min = positions.mincol;
+			if (cellcountneededright>0) {
+				xrange.max = positions.maxcol + cellcountneededright;
+			}
+		}
+		if (cellcountneededbottom>=0 && cellcountneededtop<=0){
+			yrange.min = positions.minrow;
+			if (cellcountneededbottom>0){
+				yrange.max = positions.maxrow + cellcountneededbottom;
+			}
+		}
+		/*if (cellcountneededright>0 && cellcountneededbottom>0){
+			xrange.min = positions.mincol;
+			yrange.min = positions.minrow;
+			xrange.max = positions.maxcol + cellcountneededright;
+			yrange.max = positions.maxrow + cellcountneededbottom;
+		}*/
+		if (cellcountneededleft>=0 && cellcountneededright<=0){
+			xrange.max = positions.maxcol;
+			if (cellcountneededleft>0){
+				xrange.min = positions.mincol - cellcountneededleft;
+				if (xrange.min<0){
+					xrange.min=0;
+				}
+			}
+		}
+		if (cellcountneededtop>=0 && cellcountneededbottom<=0){
+			yrange.max = positions.maxrow;
+			if (cellcountneededtop>0){
+				yrange.min = positions.minrow - cellcountneededtop;
+				if (yrange.min<0){
+					yrange.min=0;
+				}
+			}
+		}
+		//get previous position and add cellwidth + 1
+		console.log(xrange);
+		console.log(yrange);
+		$("#grid").find(".maxcolumn").text(xrange.max+1);
+		$("#grid").find(".maxrow").text(yrange.max+1);	
+		recalculate_size($("#grid"));	
+		var startycoord = yrange.min<0 ? 0 : yrange.min;
+		var startxcoord = xrange.min<0 ? 0 : xrange.min;
+		var startleft = parseInt($(".cell.row-"+startycoord+".col-"+startxcoord).css("left"),10);
+		var starttop = parseInt($(".cell.row-"+startycoord+".col-"+startxcoord).css("top"),10);
+		console.log(startleft);
+		console.log(starttop);
+		var curleft = startleft;
+		var curtop = starttop;
+		for (var i=yrange.min; i<=yrange.max; i++){
+			for (var j=xrange.min; j<=xrange.max; j++){
+				//check if doesn't exist:
+				//console.log($(".cell.row-"+i+".col-"+j).length);
+				if($(".cell.row-"+i+".col-"+j).length!=1){
+					console.log("i"+i+",j"+j);
+					console.log("left"+curleft+",curtop"+curtop);
+
+					addcelltogrid(i,j,curleft,curtop,$("#grid"));
+					
+				}
+				curleft = (curleft + cellwidth+1) % (viewportwidth+startleft);
+				if (curleft <= cellwidth){
+						curleft = 0;
+					}
+				if (curleft <= startleft){
+					curleft = startleft;
+				}
+			}
+			curtop = (curtop + cellheight+1) % (viewportheight + starttop);
+			if (curtop <= cellheight){
+				curtop = 0;
+			}
+		}
+
+
+
+
+
 		console.log(Math.ceil(rightdist/(cellwidth+1))+"cells from the right");
 		console.log(Math.ceil(leftdist/(cellwidth+1))+"cells from the left");
 		console.log(Math.ceil(bottomdist/(cellheight+1))+"cells from the bottom");
@@ -147,9 +251,8 @@ $(function() {
 					stop: function(){
 							
 						expand();	
-						denote_visible($("#grid"));	
-						var positions = find_visible_boundaries();	
-						console.log(positions);	
+						
+
 					}
 				}
 			);
