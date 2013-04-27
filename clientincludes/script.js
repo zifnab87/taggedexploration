@@ -138,8 +138,8 @@ $(function() {
 	function expand(){
 		var leftdist = $("#viewport").offset().left-$("#range").offset().left;					
 		var topdist = $("#viewport").offset().top-$("#range").offset().top;
-		var rightdist= viewportwidth-leftdist - $("#viewport").width();
-		var bottomdist = viewportheight-topdist - $("#viewport").height();
+		var rightdist = -leftdist;
+		var bottomdist = -topdist;
 		denote_visible($("#grid"));	
 		var positions = find_visible_boundaries();	
 		console.log(positions);	
@@ -151,20 +151,21 @@ $(function() {
 		xrange.min = positions.mincol;
 		
 		yrange.min = positions.*/
-		var cellcountneededright = Math.ceil(rightdist/(cellwidth+1));
-		var cellcountneededleft = Math.ceil(leftdist/(cellwidth+1));
-		var cellcountneededbottom = Math.ceil(bottomdist/(cellheight+1));
-		var cellcountneededtop = Math.ceil(topdist/(cellheight+1));
+		var cellcountneededleft = Math.round(leftdist/(cellwidth+1));
+		var cellcountneededright = -cellcountneededleft;
+		var cellcountneededtop = Math.round(topdist/(cellheight+1));
+		var cellcountneededbottom = -cellcountneededtop;
+		
 
 		
 
-		if (cellcountneededright>=0 && cellcountneededleft<=0){
+		if (cellcountneededright>0 && cellcountneededleft<0){
 			xrange.min = positions.mincol;
 			if (cellcountneededright>0) {
 				xrange.max = positions.maxcol + cellcountneededright;
 			}
 		}
-		if (cellcountneededbottom>=0 && cellcountneededtop<=0){
+		if (cellcountneededbottom>0 && cellcountneededtop<0){
 			yrange.min = positions.minrow;
 			if (cellcountneededbottom>0){
 				yrange.max = positions.maxrow + cellcountneededbottom;
@@ -176,7 +177,7 @@ $(function() {
 			xrange.max = positions.maxcol + cellcountneededright;
 			yrange.max = positions.maxrow + cellcountneededbottom;
 		}*/
-		if (cellcountneededleft>=0 && cellcountneededright<=0){
+		if (cellcountneededleft>0 && cellcountneededright<0){
 			xrange.max = positions.maxcol;
 			if (cellcountneededleft>0){
 				xrange.min = positions.mincol - cellcountneededleft;
@@ -185,7 +186,7 @@ $(function() {
 				}
 			}
 		}
-		if (cellcountneededtop>=0 && cellcountneededbottom<=0){
+		if (cellcountneededtop>0 && cellcountneededbottom<0){
 			yrange.max = positions.maxrow;
 			if (cellcountneededtop>0){
 				yrange.min = positions.minrow - cellcountneededtop;
@@ -237,10 +238,10 @@ $(function() {
 
 
 
-		console.log(Math.ceil(rightdist/(cellwidth+1))+"cells from the right");
-		console.log(Math.ceil(leftdist/(cellwidth+1))+"cells from the left");
-		console.log(Math.ceil(bottomdist/(cellheight+1))+"cells from the bottom");
-		console.log(Math.ceil(topdist/(cellheight+1))+"cells from the top");
+		console.log(cellcountneededright+"cells from the right");
+		console.log(cellcountneededleft+"cells from the left");
+		console.log(cellcountneededbottom+"cells from the bottom");
+		console.log(cellcountneededtop+"cells from the top");
 		
 
 	}
