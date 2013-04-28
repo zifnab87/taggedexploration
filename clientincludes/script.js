@@ -200,7 +200,7 @@ $(function() {
 		//console.log($(".cell.row-"+toString(minrow)+".col-"+toString(mincol)).css("left"));
 		//console.log(mincol+","+maxcol);
 		//console.log(minrow+","+maxcol);
-		$(".cell.row-"+minrow+".col-"+mincol).addClass("redd").css("background-color","red");
+		//$(".cell.row-"+minrow+".col-"+mincol).addClass("redd").css("background-color","red");
 		//console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+$(".redd").length);
 		
 
@@ -212,17 +212,17 @@ $(function() {
 		var startleft = curleft;
 		//console.log("left"+curleft+",top"+curtop);
 		//console.log("count of cells"+ $(".cell").length)
-		var countadded=0;
+		//var countadded=0;
 		for (var i=minrow; i<maxrow; i++){
 			for (var j=mincol; j<maxcol; j++){
 				//check if doesn't exist:
 				if($(".cell.row-"+i+".col-"+j).length!=1){
 					//console.log("i"+i+",j"+j);
 					//console.log("left"+curleft+",top"+curtop);
-					if (i<0 || j<0)
-						$(".cell.row-"+minrow+".col-"+mincol).css("background-color","green");
+					//if (i<0 || j<0)
+					//	$(".cell.row-"+minrow+".col-"+mincol).css("background-color","green");
 					addcelltogrid(i,j,curleft,curtop,$("#grid"));
-					countadded++;
+					//countadded++;
 					
 				}
 				curleft = (curleft + cellwidth+1);
@@ -245,137 +245,7 @@ $(function() {
 	}
 
 	
-	/*function expand(){
-		var new_viewportpositionleft = $("#viewport").position().left;
-		var leftdist = new_viewportpositionleft - viewportpositionleft;
-		viewportpositionleft = new_viewportpositionleft;
-
-		var new_viewportpositiontop = $("#viewport").position().top;
-		var topdist = new_viewportpositiontop - viewportpositiontop;
-		viewportpositiontop = new_viewportpositiontop;
-		
-
-		//var rightdist = -leftdist;
-		console.log("topdist "+topdist);
-		console.log("leftdist "+leftdist);
-		//var bottomdist = -topdist;
-		var beforeexpansion = find_visible_boundaries();	
-		console.log(beforeexpansion);	
-		//cells from the right"
-		
-		
-		//xafterexpansion.min = positions.mincol;
-		
-		//yafterexpansion.min = positions.
-		var cellcountneededleft = Math.floor(leftdist/(cellwidth+1));
-		var cellcountneededright = -cellcountneededleft;
-		var cellcountneededtop = Math.floor(topdist/(cellheight+1));
-		var cellcountneededbottom = -cellcountneededtop;
-		var afterexpansion = new Object();
-		if (cellcountneededleft<=0) {//pan right
-			afterexpansion.mincol = beforeexpansion.mincol;
-			afterexpansion.maxcol = beforeexpansion.maxcol + cellcountneededright;
-			afterexpansion.minrow = beforeexpansion.minrow;
-			afterexpansion.maxrow = beforeexpansion.maxrow;
-		}
-		if (afterexpansion.mincol<0){
-			afterexpansion.mincol=0;
-		}
-		if (afterexpansion.minrow<0){
-			afterexpansion.minrow=0;
-		}
-		
-		*/
-		/*if (cellcountneededright>0 && cellcountneededleft<0){
-			xrange.min = positions.mincol;
-			if (cellcountneededright>0) {
-				xrange.max = positions.maxcol + cellcountneededright;
-			}
-		}
-		if (cellcountneededbottom>0 && cellcountneededtop<0){
-			yrange.min = positions.minrow;
-			if (cellcountneededbottom>0){
-				yrange.max = positions.maxrow + cellcountneededbottom;
-			}
-		}
-		//if (cellcountneededright>0 && cellcountneededbottom>0){
-		//	xrange.min = positions.mincol;
-	//		yrange.min = positions.minrow;
-	//		xrange.max = positions.maxcol + cellcountneededright;
-	//		yrange.max = positions.maxrow + cellcountneededbottom;
-	//	}
-		if (cellcountneededleft>0 && cellcountneededright<0){
-			xrange.max = positions.maxcol;
-			if (cellcountneededleft>0){
-				xrange.min = positions.mincol - cellcountneededleft;
-				if (xrange.min<0){
-					xrange.min=0;
-				}
-			}
-		}
-		if (cellcountneededtop>0 && cellcountneededbottom<0){
-			yrange.max = positions.maxrow;
-			if (cellcountneededtop>0){
-				yrange.min = positions.minrow - cellcountneededtop;
-				if (yrange.min<0){
-					yrange.min=0;
-				}
-			}
-		}*/
-		//get previous position and add cellwidth + 1
-		/*console.log(afterexpansion);
-		if (afterexpansion.colmax+1>parseInt($("#grid").find(".maxcolumn").text())){
-			$("#grid").find(".maxcolumn").text(afterexpansion.colmax);
-		}
-		if (afterexpansion.rowmax+1>parseInt($("#grid").find(".maxrow").text())){
-			$("#grid").find(".maxrow").text(afterexpansion.rowmax);	
-		}
-		//recalculate_size($("#grid"));	
-		var startycoord = afterexpansion.minrow<0 ? 0 : afterexpansion.minrow;
-		var startxcoord = afterexpansion.mincol<0 ? 0 : afterexpansion.mincol;
-		var startleft = parseInt($(".cell.row-"+startycoord+".col-"+startxcoord).css("left"),10);
-		var starttop = parseInt($(".cell.row-"+startycoord+".col-"+startxcoord).css("top"),10);
-		console.log(startleft);
-		console.log(starttop);
-		var curleft = startleft;
-		var curtop = starttop;
-		for (var i=afterexpansion.minrow; i<=afterexpansion.maxrow; i++){
-			for (var j=afterexpansion.mincol; j<=afterexpansion.maxcol; j++){
-				//check if doesn't exist:
-				//console.log($(".cell.row-"+i+".col-"+j).length);
-				if($(".cell.row-"+i+".col-"+j).length!=1){
-					//console.log("i"+i+",j"+j);
-					//console.log("left"+curleft+",curtop"+curtop);
-
-					addcelltogrid(i,j,curleft,curtop,$("#grid"));
-					
-				}
-				curleft = (curleft + cellwidth+1) % (viewportwidth+startleft);
-				if (curleft <= cellwidth){
-						curleft = 0;
-					}
-				if (curleft <= startleft){
-					curleft = startleft;
-				}
-			}
-			curtop = (curtop + cellheight+1) % (viewportheight + starttop);
-			if (curtop <= cellheight){
-				curtop = 0;
-			}
-		}
-
-
-
-
-
-		console.log(cellcountneededright+"cells from the right");
-		console.log(cellcountneededleft+"cells from the left");
-		console.log(cellcountneededbottom+"cells from the bottom");
-		console.log(cellcountneededtop+"cells from the top");
-		denote_visible($("#grid"));	
-		
-
-	}*/
+	
 
 	$(document).ready(function() {
 			$("#viewport").draggable(
