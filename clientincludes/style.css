@@ -26,3 +26,12 @@ td,.cell {
 	height: 40px;
 	position: absolute;
 }
+
+
+.color-1 {background-color:#aa0000;}
+.color-2 {background-color:#00aa00;}
+.color-3 {background-color:#0000aa;}
+.color-4 {background-color:#aaaa00;}
+.color-5 {background-color:#00aaaa;}
+.color-6 {background-color:#ffffff;}
+.color-7 {background-color:#000000;}

@@ -1,13 +1,14 @@
 <?php 
 //require_once("config.php");
  $DATABASEUSER = 'root';
- $DATABASEPASSWORD = ''; 
+ $DATABASEPASSWORD = 'venusaur`3050112'; 
  $DATABASELOCATION = 'localhost';
- $DATABASENAME = 'ideas8';
+ $DATABASENAME = 'taggex';
  $SHOWMYSQLERRORS = 1;
  $LOGMYSQLERRORS = 0;
  $SERVERPATH = "\\"; 
  $LOGPATH = "logs"; 
+
 
  
 class db
@@ -123,11 +124,13 @@ class db
 	}
 }
 
+
 function createmysql() {
 		global $DATABASEUSER, $DATABASEPASSWORD, $DATABASELOCATION, $DATABASENAME;
 		$db = db::getsingleton( $DATABASELOCATION, $DATABASEUSER, $DATABASEPASSWORD,  $DATABASENAME);
 		return $db;
 }
+
 
 
 

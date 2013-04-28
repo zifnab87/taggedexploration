@@ -1,14 +1,17 @@
 <?php
 
-require_once("includes/dbaccess.php");
+require_once("inc.php");
+
+
+var_dump(insertLabels(300,300,90,4,10,0.7,0.70));
 
 function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_distance, $empty_prob, $same_prob) {
 	$grid = array(array());
 	$seeds = array();
-
+	//hack 
 	// place seed points
 	$min_seed_distance2 = $min_seed_distance * $min_seed_distance;
-	for ($i = 0; $i < $num_seeds; ++i) {
+	for ($i = 0; $i < $num_seeds; ++$i) {
 		do {
 			$x = rand(0, $xrange - 1);
 			$y = rand(0, $yrange - 1);
@@ -64,6 +67,7 @@ function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_dista
 				}
 			}
 			$grid[$y][$x] = $label;
+
 
 			insert_point($x, $y, $label);
 		}

@@ -52,10 +52,12 @@ $(function() {
 
 		var curposx = posx;
 		var curposy = posy;
+		var results = database_fetch(0,numofcellsx-1,0,numofcellsy-1);
+
 		for (var i=0; i<numofcellsy; i++){
 			for (var j=0; j<numofcellsx; j++){
 
-				addcelltogrid(i,j,curposx,curposy,$("#grid"));
+				addcelltogrid(i,j,curposx,curposy,$("#grid"),results);
 				curposx = (curposx + cellwidth+1) % viewportwidth;
 				if (curposx<cellwidth){
 					curposx = 0;
@@ -75,6 +77,45 @@ $(function() {
 
 	}
 
+
+	function database_fetch(xmin,xmax,ymin,ymax){
+		
+		globalresults  = null;
+		$.ajax({
+		  type: 'POST',
+		  url: 'ajax.php',
+		  data: {
+			   'q':'points_fetch',
+			   'xmin':xmin, 
+			   'xmax':xmax, 
+			   'ymin':ymin, 
+			   "ymax": ymax
+			   },
+		  success: function(data){
+			   		globalresults = $.parseJSON(data);
+
+			   },
+		  async:false
+		});
+
+		/*$.post('ajax.php', 
+		 		{
+			   'q':'points_fetch',
+			   'xmin':xmin, 
+			   'xmax':xmax, 
+			   'ymin':ymin, 
+			   "ymax": ymax
+			   },
+			   function(data){
+			   		globalresults = $.parseJSON(data);
+
+			   },
+			   async:false
+		);*/
+		return globalresults;
+
+	}
+
 	function recalculate_size(element){
 		var maxrow = element.find(".maxrow").text();
 		var maxcolumn = element.find(".maxcolumn").text();
@@ -84,8 +125,12 @@ $(function() {
 
 	}
 
-	function addcelltogrid(row,column,left,top,gridel){
-		gridel.append("<div class='cell row-"+row+" col-"+column+"' style='left:"+left+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
+	function addcelltogrid(row,column,left,top,gridel,results){
+		var colorclass = "";
+		if (results && results[row] && results[row][column]){
+			colorclass = "color-"+results[row][column].label;
+		}
+		gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
 	}
 
 
@@ -213,6 +258,7 @@ $(function() {
 		//console.log("left"+curleft+",top"+curtop);
 		//console.log("count of cells"+ $(".cell").length)
 		//var countadded=0;
+		var results = database_fetch(mincol,maxcol,minrow,maxrow);
 		for (var i=minrow; i<maxrow; i++){
 			for (var j=mincol; j<maxcol; j++){
 				//check if doesn't exist:
@@ -221,7 +267,7 @@ $(function() {
 					//console.log("left"+curleft+",top"+curtop);
 					//if (i<0 || j<0)
 					//	$(".cell.row-"+minrow+".col-"+mincol).css("background-color","green");
-					addcelltogrid(i,j,curleft,curtop,$("#grid"));
+					addcelltogrid(i,j,curleft,curtop,$("#grid"),results);
 					//countadded++;
 					
 				}
