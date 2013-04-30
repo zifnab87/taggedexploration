@@ -7,6 +7,8 @@ $(function() {
 	cellheight = 40;
 	viewportwidth = 800;
 	viewportheight = 600;
+	db_offsetx = 100;
+	db_offsety = 100;
 
 	function initialize(element){
 		var parwidth = element.parents("#range").width();
@@ -31,7 +33,7 @@ $(function() {
 
 		var curposx = posx;
 		var curposy = posy;
-		fetch(0,numofcellsx,0,numofcellsy);
+		fetch(0,numofcellsx,0,numofcellsy,db_offsetx,db_offsety);
 
 		$("#grid").find(".maxcolumn").text(numofcellsx);
 		$("#grid").find(".maxrow").text(numofcellsy);
@@ -143,15 +145,19 @@ $(function() {
 		var minrow = Math.ceil(viewporttopdif / (cellheight+1));
 		var maxcol = mincol + numofcellsx;
 		var maxrow = minrow + numofcellsy;
-		fetch(mincol,maxcol,minrow,maxrow);
+		fetch(mincol,maxcol,minrow,maxrow,db_offsetx,db_offsety);
 	}
 
-	function fetch(mincol,maxcol,minrow,maxrow){
+	function fetch(mincol,maxcol,minrow,maxrow,db_offsetx,db_offsety){
 
 		var results  = null;
 		var curleft = mincol*(cellwidth+1);
 		var curtop = minrow*(cellheight+1);
 		var startleft = curleft;
+		minrow += db_offsety;
+		maxrow += db_offsety;
+		mincol += db_offsetx;
+		maxcol += db_offsetx;
 		$.ajax({
 		  type: 'POST',
 		  url: 'ajax.php',
@@ -163,7 +169,7 @@ $(function() {
 			   "ymax": maxrow
 			   },
 		  success: function(data){
-			   		results = $.parseJSON(data);
+			   		var results = $.parseJSON(data);
 			   		for (var i=minrow; i<maxrow; i++){
 						for (var j=mincol; j<maxcol; j++){
 							//check if doesn't exist:
