@@ -22,4 +22,11 @@ function points_fetch(){
 	$points = get_points_by_range($xmin,$xmax,$ymin,$ymax);
 	echo json_encode($points);
 }
+
+
+function prob_fetch(){
+	if (isset($_POST["sequence"])){
+		$sequence = $_POST["sequence"];
+	}
+}
 ?>

@@ -1,131 +1,103 @@
 <?php
-	define("HMM_START_TOKEN", "--HMM_START_TOKEN--");
+class MarkovChain{
+	protected $order;
+	protected $classes=array();
+	protected $M=array(); //transition matrix
+	protected $count_array; //count
 
-	/*
-		Example usage:
+	function __construct($order,$classes){
+		$this->order = $order;
+		$this->classes = $classes;
+	}
 
-			$string = file_get_contents("input");
-	
-			$mm = new MarkovChain();
-			$mm->train($string, 8);
-			var_dump( implode(" -> ", $mm->generate(100)) );
+    public function train($sequence_array) { //array
+    	$window = $this->order +1; // this checks the subsequence_arrays to fill the Transition Matrix
+    	for ($i=0; $i<=sizeof($sequence_array)-$window; $i=$i+1){
+    		$subarray = array_slice($sequence_array,$i,$window);
+    		$depth = &$this->M;
+    		for ($j=0; $j<$this->order; $j++){
+    			
+    			if (!isset($depth[$subarray[$j]])){
+    				$depth[$subarray[$j]]=array();
+    			}
+    			$depth = &$depth[$subarray[$j]];
+    		}
+    		if (!isset($depth[$subarray[$j]])){
+    			$depth[$subarray[$j]] = 1;
+    		} 
+    		else {
+    			$depth[$subarray[$j]] += 1;
+    		}
+    		
+    	}
 
-		Its theoretically possible to return the model and "look up" conditional probabilities of events. Also, we store things space separated in the hash which is obviously a source of potential error if your tokenizer does not tokenize on spaces. 
-	*/
 
-	class MarkovChain {
-		protected $model;
-		protected $degree;
+	}
 
-		// corpus can be either a string, which will be tokenized or an array which is assumed to already be tokenized.
-		public function train($corpus, $degree = 1, $token = "/[\s,]+/") {
-			if(!is_array($corpus)) 
-				$corpus = $this->tokenize($corpus, $token);
+	public function get_trans_matrix(){ // this matrix has just counts
+		return $this->M;
+	}
 
-			$counts = array();
-			$prev = array_fill(0, $degree, HMM_START_TOKEN);
-			$this->degree = $degree;
-
-			foreach($corpus as $name) {
-				$name = trim($name);
-				if($name == "")
-					continue;
-
-				$use = $prev;
-				for($i = 0; $i < $this->degree; $i++) {
-					$pstring = $this->prepareIndex($use);
-
-					if(!isset($this->model[$pstring]))
-						$this->model[$pstring] = array();
-
-					if(!isset($this->model[$pstring][$name]))
-						$this->model[$pstring][$name] = 1;
-					else
-						$this->model[$pstring][$name] += 1;
-
-					if(!isset($counts[$pstring]))
-						$counts[$pstring] = 1;
-					else
-						$counts[$pstring] += 1;
-
-					array_shift($use);
-				}
-
-				array_shift($prev);
-				$prev[] = $name;				
-			}
-
-			foreach($this->model as $prev=>$curr) {
-				foreach($curr as $k=>$v) {
-					$curr[$k] /= $counts[$prev];
-				}
-				$this->model[$prev] = $curr;
-			}
-
-			return true;
+	public function get_probability($sequence){ 
+		//probability of specific sequnce - the last part is current
+		// all the others are the past  
+		if (sizeof($sequence)!= $this->order+1){
+			throw new Exception('Sequence should be one longer than order number of Markov Chain.');
 		}
-
-		// extend the class to override the tokenizer (or just pass in tokenized in to train)
-		protected function tokenize($corpus, $token) {
-			return preg_split($token, $corpus);
-		}
-
-		protected function prepareIndex($array) {
-			// if the tokenizer doesn't tokenize on space, this is a bug; a multi-depth array is a potential memory expensive solution.
-			// another potential solution is to use hashes instead here -- we can hash dependent on the depth of the array in order to get a probabilistic solution.
-			return implode(" ", $array);
-		}
-
-		public function generate($length = null, $start = HMM_START_TOKEN, $token = "/[\s,]+/") {
-			if(!is_array($start)) {
-				$start = ($this->tokenize($start, $token));
+		$depth = &$this->M;
+		for ($j=0; $j<$this->order; $j++){
+			
+			if (!isset($depth[$sequence[$j]])){
+				$depth[$sequence[$j]]=array();
 			}
-
-			$return = $start ;
-			while(count($start) > $this->degree) {
-				// we have a problem, sort of; pop words out of the feed
-				array_shift($start);	
-			}
-
-			if (count($start) < $this->degree) {
-				// fill the start array with HMM_START_TOKENs up to the length of degree (we'll shift them off if necessary in generateOne)
-				$s = array_fill(0, $this->degree, HMM_START_TOKEN);
-				$diff = $this->degree - count($start);
-				foreach($start as $val) {
-					$s[$diff++] = $val;
-				}
-				$start = $s;
-			}
-
-			$curr = $start;
-			for($i = 0; $i < $length; $i++) {
-				$next = $this->generateOne($curr);
-				$return[] = $next;
-				array_shift($curr);
-				$curr[] = $next; 
-			}
-			return $return;
+			$depth = &$depth[$sequence[$j]];
 		}
 
 
-		protected function generateOne($start) {
-			// this does "fall back" generation -- i.e., if there's no matches at the degree N state, try out the degree N-1 state; the degree 1 state will always have a match.
-			for($i = 0; $i < $this->degree; $i++) {
-				$pstring = $this->prepareIndex($start);
-				if(!isset($this->model[$pstring])) {
-					array_shift($start);
-					continue;
-				} 
+		$sum=0;
+		foreach ($depth as $count){
+			$sum += $count;
+		}
 
-				$probabilities = $this->model[$pstring];
-				$rand = (rand() / getrandmax());
 
-				foreach($probabilities as $word => $p) {
-					$rand -= $p;
-					if($rand <= 0)
-						return $word;
-				}
+		$probability = $depth[$sequence[$j]];
+		return $probability/$sum;
+	}
+
+	public function get_probability_set($sequence) { 
+		//return the probabilities of all possible transitions given order number of classes
+		if (sizeof($sequence)!= $this->order){
+			throw new Exception('Sequence should have order number of elements.');
+		}
+		$probability_set = array();
+		for($i=0; $i<sizeof($this->classes); $i++){
+			$new_sequence = array_merge($sequence,array($this->classes[$i]));
+			$probability_set[$this->classes[$i]]=$this->get_probability($new_sequence);
+		}
+		return $probability_set;
+
+	}
+
+	public function get_most_probable_class($sequence) {
+		if (sizeof($sequence)!= $this->order){
+			throw new Exception('Sequence should have order number of elements.');
+		}
+		$probability_set = $this->get_probability_set($sequence);
+
+		$max_class = null;
+		$max_prob = 0;
+		foreach ($probability_set as $class => $probability){
+			if ($probability > $max_prob){
+				$max_prob = $probability;
+				$max_class = $class;
 			}
+		}
+
+		if ($max_prob==0){
+			return false;
+		}
+		else {
+			return $max_class;
 		}
 	}
-?>
+}
