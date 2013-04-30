@@ -8,27 +8,6 @@ $(function() {
 	viewportwidth = 800;
 	viewportheight = 600;
 
-
-	//var doneTypingInterval = 500;
-	
-	
-
-	/*$(".displaynewobjform").click( 
-		function() {
-			$.post(ajax_path, {'q':'ajax_display_new_obj_form'}, 
-				function(data){ 
-					//$('#formcontainer form.objectform').remove();
-				//if ($("#formcontainer form").length==0) {
-					$('#formcontainer').prepend(data);
-				//}
-				}
-			);  
-		}
-	);*/
-
-
-
-
 	function initialize(element){
 		var parwidth = element.parents("#range").width();
 		var parleft = element.parents("#range").height();
@@ -52,67 +31,13 @@ $(function() {
 
 		var curposx = posx;
 		var curposy = posy;
-		var results = database_fetch(0,numofcellsx-1,0,numofcellsy-1);
+		fetch(0,numofcellsx,0,numofcellsy);
 
-		for (var i=0; i<numofcellsy; i++){
-			for (var j=0; j<numofcellsx; j++){
-
-				addcelltogrid(i,j,curposx,curposy,$("#grid"),results);
-				curposx = (curposx + cellwidth+1) % viewportwidth;
-				if (curposx<cellwidth){
-					curposx = 0;
-				}
-			
-			}
-			curposy = (curposy + cellheight+1) % viewportheight;
-			if (curposy<cellheight){
-				curposy = 0;
-			}
-		}
 		$("#grid").find(".maxcolumn").text(numofcellsx);
 		$("#grid").find(".maxrow").text(numofcellsy);
 
 		recalculate_size($("#grid"));
 		denote_visible($("#grid"));
-
-	}
-
-
-	function database_fetch(xmin,xmax,ymin,ymax){
-		
-		globalresults  = null;
-		$.ajax({
-		  type: 'POST',
-		  url: 'ajax.php',
-		  data: {
-			   'q':'points_fetch',
-			   'xmin':xmin, 
-			   'xmax':xmax, 
-			   'ymin':ymin, 
-			   "ymax": ymax
-			   },
-		  success: function(data){
-			   		globalresults = $.parseJSON(data);
-
-			   },
-		  async:false
-		});
-
-		/*$.post('ajax.php', 
-		 		{
-			   'q':'points_fetch',
-			   'xmin':xmin, 
-			   'xmax':xmax, 
-			   'ymin':ymin, 
-			   "ymax": ymax
-			   },
-			   function(data){
-			   		globalresults = $.parseJSON(data);
-
-			   },
-			   async:false
-		);*/
-		return globalresults;
 
 	}
 
@@ -161,9 +86,6 @@ $(function() {
 		var right = left + $("#range").width();
 		$(".visible").removeClass("visible");
 		elem.find(".cell").each(function(){
-			//var centerX = centerpos($(this)).centerX;
-			//var centerY = centerpos($(this)).centerY;
-			//if (centerY>=top && centerY <= bottom && centerX>=left && centerX<=right){
 			var elemY = lefttoppos($(this)).top;
 			var elemX = lefttoppos($(this)).left;
 			if (elemY>=top && elemY <= bottom && elemX>=left && elemX<=right){
@@ -213,84 +135,51 @@ $(function() {
 		var new_viewporttop = $("#viewport").position().top;
 		var topdist = new_viewporttop - viewporttop;
 		viewporttop = new_viewporttop;
-
-
-		//console.log(leftmostpixelleft+","+leftmostpixeltop);
 		leftmostpixelleft += leftdist;
 		leftmostpixeltop += topdist;
-		//console.log(leftmostpixelleft+","+leftmostpixeltop);
-		//console.log("~~");
 		viewportleftdif = viewportstartleft - leftmostpixelleft;
 		viewporttopdif = viewportstarttop - leftmostpixeltop;
-		//console.log(viewportleftdif+","+viewporttopdif);
-		//console.log("~~");
-
 		var mincol = Math.ceil(viewportleftdif / (cellwidth+1));
 		var minrow = Math.ceil(viewporttopdif / (cellheight+1));
 		var maxcol = mincol + numofcellsx;
 		var maxrow = minrow + numofcellsy;
-		//console.log(mincol+","+maxcol);
-		//console.log(minrow+","+maxrow);
-
-		//+ (viewportleftdif - ?)
-		//var curleft =  viewportleftdif + (viewportleftdif % (cellwidth+1));
-		//var curtop = viewporttopdif + (viewporttopdif % (cellheight+1));
-		var curleft = mincol*(cellwidth+1);
-		var curtop = minrow*(cellheight+1);
-		//var startleft =(cellwidth+1) - ( (viewportstartleft - viewportleftdif ) % (cellwidth+1))
-		//var starttop = (cellwidth+1) - ((viewportstartleft - viewporttopdif) % (cellheight+1));
-		
-		//var curleft = startleft;
-		//var curtop = starttop;
-		//console.log($(".cell.row-"+toString(minrow)+".col-"+toString(mincol)).css("left"));
-		//console.log(mincol+","+maxcol);
-		//console.log(minrow+","+maxcol);
-		//$(".cell.row-"+minrow+".col-"+mincol).addClass("redd").css("background-color","red");
-		//console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+$(".redd").length);
-		
-
-
-
-		//var curleft = parseInt($(".cell.row-"+minrow+".col-"+mincol).css("left"),10);
-		//var curtop = parseInt($(".cell.row-"+minrow+".col-"+mincol).css("top"),10);
-		//console.log($(".cell.row-"+minrow+".col-"+mincol));
-		var startleft = curleft;
-		//console.log("left"+curleft+",top"+curtop);
-		//console.log("count of cells"+ $(".cell").length)
-		//var countadded=0;
-		var results = database_fetch(mincol,maxcol,minrow,maxrow);
-		for (var i=minrow; i<maxrow; i++){
-			for (var j=mincol; j<maxcol; j++){
-				//check if doesn't exist:
-				if($(".cell.row-"+i+".col-"+j).length!=1){
-					//console.log("i"+i+",j"+j);
-					//console.log("left"+curleft+",top"+curtop);
-					//if (i<0 || j<0)
-					//	$(".cell.row-"+minrow+".col-"+mincol).css("background-color","green");
-					addcelltogrid(i,j,curleft,curtop,$("#grid"),results);
-					//countadded++;
-					
-				}
-				curleft = (curleft + cellwidth+1);
-
-				/*if (curleft <= cellwidth){
-						curleft = 0;
-					}
-				if (curleft <= startleft){
-					curleft = startleft;
-				}*/
-			}
-			curleft = startleft;
-			curtop = (curtop + cellheight+1);
-			/*if (curtop <= cellheight){
-				curtop = 0;
-			}*/
-		}
-		//console.log("count of cells"+ $(".cell").length)
-		//console.log("just added"+ countadded);
+		fetch(mincol,maxcol,minrow,maxrow);
 	}
 
-	
+	function fetch(mincol,maxcol,minrow,maxrow){
+
+		var results  = null;
+		var curleft = mincol*(cellwidth+1);
+		var curtop = minrow*(cellheight+1);
+		var startleft = curleft;
+		$.ajax({
+		  type: 'POST',
+		  url: 'ajax.php',
+		  data: {
+			   'q':'points_fetch',
+			   'xmin':mincol, 
+			   'xmax':maxcol, 
+			   'ymin':minrow, 
+			   "ymax": maxrow
+			   },
+		  success: function(data){
+			   		results = $.parseJSON(data);
+			   		for (var i=minrow; i<maxrow; i++){
+						for (var j=mincol; j<maxcol; j++){
+							//check if doesn't exist:
+							if($(".cell.row-"+i+".col-"+j).length!=1){
+								addcelltogrid(i,j,curleft,curtop,$("#grid"),results);
+								//countadded++;
+								
+							}
+							curleft = (curleft + cellwidth+1);
+						}
+						curleft = startleft;
+						curtop = (curtop + cellheight+1);
+					}
+			   },
+		});
+	}	
 	
 
 	$(document).ready(function() {
