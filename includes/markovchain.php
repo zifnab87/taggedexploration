@@ -84,20 +84,25 @@ class MarkovChain{
 		}
 		$probability_set = $this->get_probability_set($sequence);
 
-		$max_class = null;
-		$max_prob = 0;
+		$max_prob = -1;
 		foreach ($probability_set as $class => $probability){
 			if ($probability > $max_prob){
 				$max_prob = $probability;
-				$max_class = $class;
 			}
 		}
 
 		if ($max_prob==0){
 			return false;
 		}
-		else {
-			return $max_class;
+		$best_classes = array();
+		foreach ($probability_set as $class => $prob) {
+			if ($prob == $max_prob) {
+				$best_classes[] = $class;
+			}
 		}
+		if (sizeof($best_classes) > 1) {
+			return $best_classes;
+		}
+		return $best_classes[0];
 	}
 }

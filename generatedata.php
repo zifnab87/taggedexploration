@@ -2,10 +2,9 @@
 
 require_once("inc.php");
 
+var_dump(insert_labels(300,300,90,4,10,0.7,0.70));
 
-var_dump(insertLabels(300,300,90,4,10,0.7,0.70));
-
-function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_distance, $empty_prob, $same_prob) {
+function insert_labels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_distance, $empty_prob, $same_prob) {
 	$grid = array(array());
 	$seeds = array();
 	//hack 
@@ -67,7 +66,6 @@ function insertLabels($xrange, $yrange, $num_seeds, $num_labels, $min_seed_dista
 				}
 			}
 			$grid[$y][$x] = $label;
-
 
 			insert_point($x, $y, $label);
 		}
