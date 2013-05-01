@@ -9,6 +9,8 @@ $(function() {
 	viewportheight = 600;
 	db_offsetx = 100;
 	db_offsety = 100;
+	max_num_of_classes = 7;
+	training_set_size = 40;
 
 	function initialize(element){
 		var parwidth = element.parents("#range").width();
@@ -39,7 +41,7 @@ $(function() {
 		$("#grid").find(".maxrow").text(numofcellsy);
 
 		recalculate_size($("#grid"));
-		denote_visible($("#grid"));
+		//denote_visible($("#grid"));
 
 	}
 
@@ -104,7 +106,7 @@ $(function() {
 		var maxrow = 0;
 		var mincol = 100000000000;
 		var maxcol = 0;
-		denote_visible($("#grid"));	
+		//denote_visible($("#grid"));	
 		$(".visible").each(function(){
 			var row = parseInt($(this).find(".row").text());
 			var col = parseInt($(this).find(".col").text());
@@ -148,6 +150,34 @@ $(function() {
 		fetch(mincol,maxcol,minrow,maxrow,db_offsetx,db_offsety);
 	}
 
+	function find_tag_of_interest(){
+		var visibleElems = $(".visible");
+		//count the majority of tag type in the visible area
+		var array = new Array();
+		var maxcount = 0;
+		var maxtag = null;
+		for (var i=1; i<=max_num_of_classes; i++){
+			var count = $("#grid").find(".visible.color-"+i).length;
+			array[i] = count;
+			if (count>maxcount) {
+				maxcount = count;
+				maxtag = i;
+			}
+		}
+		return maxtag;
+	}
+
+	function update_tag_of_interest_vis(tag){
+		for (var i=0; i<max_num_of_classes; i++){
+			$(".tag-interest").removeClass("color-"+i);
+		}
+		$(".tag-interest").addClass("color-"+tag);
+		$(".interest-window").prepend("<div class='interest color-"+tag+"'></div>");
+		if ($(".interest-window").children().length>training_set_size){
+			$(".interest-window").children().last().remove();
+		}
+	}
+
 	function fetch(mincol,maxcol,minrow,maxrow,db_offsetx,db_offsety){
 
 		var results  = null;
@@ -169,6 +199,8 @@ $(function() {
 			   "ymax": maxrow
 			   },
 		  success: function(data){
+		  			//remove the class visible from any cell and add to the new ones
+		  			$(".visible").removeClass("visible");
 			   		var results = $.parseJSON(data);
 			   		for (var i=minrow; i<maxrow; i++){
 						for (var j=mincol; j<maxcol; j++){
@@ -176,13 +208,17 @@ $(function() {
 							if($(".cell.row-"+i+".col-"+j).length!=1){
 								addcelltogrid(i,j,curleft,curtop,$("#grid"),results);
 								//countadded++;
-								
 							}
+							//denote as visible
+							$(".cell.row-"+i+".col-"+j).addClass("visible");
 							curleft = (curleft + cellwidth+1);
 						}
 						curleft = startleft;
 						curtop = (curtop + cellheight+1);
+
 					}
+					tag_of_interest = find_tag_of_interest();
+					update_tag_of_interest_vis(tag_of_interest);
 			   },
 		});
 	}	
@@ -198,7 +234,7 @@ $(function() {
 							
 						//expand();	
 						pan();
-						
+						//console.log("async after pan"+tag_of_interest);
 
 					}
 				}

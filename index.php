@@ -6,6 +6,11 @@
 		<link type="text/css" rel="stylesheet" href="clientincludes/style.css"/>
 </head>
 <body>
+<div style="float:right; min-height: 400px; width: 165px">
+	Current Interest: <div class="tag-interest"></div>
+    On-line Training set:<div class="interest-window"></div>
+</div>
+
 
 <div id="range">
     <!--<img src="map.gif" id="map" />-->
