@@ -3,36 +3,55 @@
 class MarkovChain{
 	protected $order;
 	protected $classes=array();
-	protected $M=array(); //transition matrix
+	protected $M; //transition matrix
 	protected $count_array; //count
+	protected $last_sequence; // last sequence of labels to train online
 
 	function __construct($order,$classes){
 		$this->order = $order;
 		$this->classes = $classes;
+		$this->last_sequence = array();
 	}
 
-    public function train($sequence_array) { //array
-    	$window = $this->order +1; // this checks the subsequence_arrays to fill the Transition Matrix
-    	for ($i=0; $i<=sizeof($sequence_array)-$window; $i=$i+1){
-    		$subarray = array_slice($sequence_array,$i,$window);
-    		$depth = &$this->M;
-    		for ($j=0; $j<$this->order; $j++){
-    			
-    			if (!isset($depth[$subarray[$j]])){
-    				$depth[$subarray[$j]]=array();
-    			}
-    			$depth = &$depth[$subarray[$j]];
-    		}
-    		if (!isset($depth[$subarray[$j]])){
-    			$depth[$subarray[$j]] = 1;
-    		} 
-    		else {
-    			$depth[$subarray[$j]] += 1;
-    		}
-    		
+	public function train($sequence_array) { //array
+		$this->M = array();
+		$this->last_sequence = array();
+    	$window = $this->order + 1; // this checks the subsequence_arrays to fill the Transition Matrix
+    	for ($i = 0; $i <= sizeof($sequence_array) - $window; ++$i) {
+			$subarray = array_slice($sequence_array, $i, $window - 1);
+			$this->train_step($sequence_array[$i + $window], $subarray);
     	}
+	}
 
+	public function train_step($label) {
+		// if we do not have enough training data, just build the last sequence and return
+		if (sizeof($this->last_sequence) < $this->order) {
+			$this->last_sequence[] = $label;
+			return;
+		}
 
+		// otherwise train on the last sequence
+		$this->train_step($label, $this->last_sequence);
+
+		// evict the oldest and add the newest label to the last sequence
+		array_shift($this->last_sequence);
+		$this->last_sequence[] = $label;
+	}
+
+	public function train_step($label, $sequence) {
+		$depth = &$this->M;
+  		for ($i = 0; $i < $this->order; ++$i) {
+   			if (!isset($depth[$subarray[$i]])) {
+   				$depth[$subarray[$i]]=array();
+   			}
+   			$depth = &$depth[$subarray[$i]];
+   		}
+   		if (!isset($depth[$label])) {
+   			$depth[$label] = 1;
+   		} 
+   		else {
+   			$depth[$label] += 1;
+		}
 	}
 
 	public function get_trans_matrix(){ // this matrix has just counts
@@ -79,9 +98,8 @@ class MarkovChain{
 
 	}
 
-	public function get_most_probable_class($sequence) {
-		echo $this->oder;
-		var_dump($sequence);
+	public function get_most_probable_class() {
+		$sequence = $this->last_sequence;
 		if (sizeof($sequence)!= $this->order){
 			throw new Exception('Sequence should have order number of elements.');
 		}
@@ -107,25 +125,6 @@ class MarkovChain{
 			return $best_classes;
 		}
 		return $best_classes[0];
-	}
-
-	public function update_markov_chain($window_sequence) {
-		// decrement the window we want to remove
-		$depth = &$this->M;
-		for ($i=0; $i<$this->order; ++$i){
-			$depth = &$depth[$window_sequence[$i]];
-		}
-		$depth[$window_sequence[$i]] -= 1;
-
-		// increment the window we want to add
-		$depth = &$this->M;
-		for ($i=sizeof($window_sequence) - $this->order; $i < sizeof($window_sequence); ++$i){
-			if (!isset($depth[$window_sequence[$i]])){
-				$depth[$window_sequence[$i]]=array();
-			}
-			$depth = &$depth[$window_sequence[$i]];
-		}
-		$depth[$window_sequence[$i]] += 1;
 	}
 }
 
