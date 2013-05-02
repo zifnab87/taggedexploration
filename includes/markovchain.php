@@ -47,10 +47,10 @@ class MarkovChain{
 	public function train_step_sequence($label, $sequence) {
 		$depth = &$this->M;
   		for ($i = 0; $i < $this->order; ++$i) {
-   			if (!isset($depth[$subarray[$i]])) {
-   				$depth[$subarray[$i]]=array();
+   			if (!isset($depth[$sequence[$i]])) {
+   				$depth[$sequence[$i]]=array();
    			}
-   			$depth = &$depth[$subarray[$i]];
+   			$depth = &$depth[$sequence[$i]];
    		}
    		if (!isset($depth[$label])) {
    			$depth[$label] = 1;
