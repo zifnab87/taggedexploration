@@ -185,21 +185,20 @@ $(function() {
 	function predict(){
 		var sequence = new Array();
 		var count = 0;
-		$(".interest-window .color.hidden").each(function(){
-			sequence.push($(this).text());
-		});
-		console.log(sequence);
+		var change = $(".interest-window .color.hidden").first().text();
+
 		$.ajax({
 		  type: 'POST',
 		  url: 'ajax.php',
 		  data: {
 			   'q':'predict',
-			   'markov_model_order':markov_model_order, 
+			   'training_set_size': training_set_size, 
 			   'classes': classes,
-			   'sequence': sequence
+			   'change': change,
+			   'markov_model_order': markov_model_order
 			   },
 		  success: function(data){
-
+		  	console.log(data);
 		  }
 		});
 	}

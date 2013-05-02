@@ -1,6 +1,6 @@
 <?php
 require_once("inc.php");
-
+session_start();
 if (isset($_POST["q"])){
 	$request=$_POST["q"];
 	$request();
@@ -25,20 +25,35 @@ function points_fetch(){
 
 
 function predict(){
-	if (isset($_POST["markov_model_order"])){
-		$order = $_POST["order"];
-	}
-	if (isset($_POST["sequence"])){
-		$sequence = $_POST["sequence"];
+	if (isset($_POST["change"])){ // the label that just changed
+		$order = $_POST["change"];
 	}
 	if (isset($_POST["classes"])){
 		$classes = $_POST["classes"];
 	}
-	$chain = new MarkovChain($order,$classes);
-	$chain->train($sequence);
-	$prefix_sequence = array_slice($sequence,0,$order=1);
-	echo $order;
-	echo sizeof($prefix_sequence);
+	//if (isset($_POST["training_set_size"])){
+	//	$training_set_size = $_POST["training_set_size"];
+	//}
+	if (!isset($_POST["markov_model_order"])){
+		$order = $_POST["markov_model_order"];
+	}
+
+	if (!isset($_SESSION["chain"])){
+		$chain = new MarkovChain($order,$classes);
+		$_SESSION["chain"] = serialize($chain);
+	}
+	$chain = unserialize($_SESSION["chain"]);
+	
+	$chain->train_step($change);
+	$prediction = $chain->get_most_probable_class();
+	var_dump($chain);
+	var_dump($chainge);
+	var_dump($class);
+	var_dump($prediction);
+	//var_dump($training_set_size)
+	//$prefix_sequence = array_slice($sequence,0,$order=1);
+	//echo $order;
+	//echo sizeof($prefix_sequence);
 	//echo $chain->get_most_probable_class($prefix_sequence);
 
 }
