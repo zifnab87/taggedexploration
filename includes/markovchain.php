@@ -101,7 +101,7 @@ class MarkovChain{
 	public function get_most_probable_class() {
 		$sequence = $this->last_sequence;
 		if (sizeof($sequence)!= $this->order){
-			throw new Exception('Sequence should have order number of elements.');
+			return false;
 		}
 		$probability_set = $this->get_probability_set($sequence);
 
