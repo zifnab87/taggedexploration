@@ -10,6 +10,7 @@ class MarkovChain{
 	function __construct($order,$classes){
 		$this->order = $order;
 		$this->classes = $classes;
+		$this->M = array();
 		$this->last_sequence = array();
 	}
 
