@@ -31,14 +31,14 @@ class MarkovChain{
 		}
 
 		// otherwise train on the last sequence
-		$this->train_step($label, $this->last_sequence);
+		$this->train_step_sequence($label, $this->last_sequence);
 
 		// evict the oldest and add the newest label to the last sequence
 		array_shift($this->last_sequence);
 		$this->last_sequence[] = $label;
 	}
 
-	public function train_step($label, $sequence) {
+	public function train_step_sequence($label, $sequence) {
 		$depth = &$this->M;
   		for ($i = 0; $i < $this->order; ++$i) {
    			if (!isset($depth[$subarray[$i]])) {
