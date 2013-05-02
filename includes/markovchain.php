@@ -79,6 +79,8 @@ class MarkovChain{
 	}
 
 	public function get_most_probable_class($sequence) {
+		echo $this->oder;
+		var_dump($sequence);
 		if (sizeof($sequence)!= $this->order){
 			throw new Exception('Sequence should have order number of elements.');
 		}

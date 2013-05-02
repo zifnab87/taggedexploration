@@ -24,9 +24,25 @@ function points_fetch(){
 }
 
 
-function prob_fetch(){
+function predict(){
+	if (isset($_POST["markov_model_order"])){
+		$order = $_POST["order"];
+	}
 	if (isset($_POST["sequence"])){
 		$sequence = $_POST["sequence"];
 	}
+	if (isset($_POST["classes"])){
+		$classes = $_POST["classes"];
+	}
+	$chain = new MarkovChain($order,$classes);
+	$chain->train($sequence);
+	$prefix_sequence = array_slice($sequence,0,$order=1);
+	echo $order;
+	echo sizeof($prefix_sequence);
+	//echo $chain->get_most_probable_class($prefix_sequence);
+
 }
+
+
+
 ?>

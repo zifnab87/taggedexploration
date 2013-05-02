@@ -11,6 +11,8 @@ $(function() {
 	db_offsety = 100;
 	max_num_of_classes = 7;
 	training_set_size = 40;
+	markov_model_order = 2;
+	classes = new Array(1,2,3,4,5,6,7);
 
 	function initialize(element){
 		var parwidth = element.parents("#range").width();
@@ -172,10 +174,32 @@ $(function() {
 			$(".tag-interest").removeClass("color-"+i);
 		}
 		$(".tag-interest").addClass("color-"+tag);
-		$(".interest-window").prepend("<div class='interest color-"+tag+"'></div>");
+		$(".interest-window").prepend("<div class='interest color-"+tag+"'><div class='hidden color'>"+tag+"</div></div>");
 		if ($(".interest-window").children().length>training_set_size){
 			$(".interest-window").children().last().remove();
 		}
+	}
+
+	function predict(){
+		var sequence = new Array();
+		var count = 0;
+		$(".interest-window .color.hidden").each(function(){
+			sequence.push($(this).text());
+		});
+		console.log(sequence);
+		$.ajax({
+		  type: 'POST',
+		  url: 'ajax.php',
+		  data: {
+			   'q':'predict',
+			   'markov_model_order':markov_model_order, 
+			   'classes': classes,
+			   'sequence': sequence
+			   },
+		  success: function(data){
+
+		  }
+		});
 	}
 
 	function fetch(mincol,maxcol,minrow,maxrow,db_offsetx,db_offsety){
@@ -217,11 +241,15 @@ $(function() {
 						curtop = (curtop + cellheight+1);
 
 					}
+
 					tag_of_interest = find_tag_of_interest();
 					update_tag_of_interest_vis(tag_of_interest);
+					predict();
 			   },
 		});
 	}	
+
+
 	
 
 	$(document).ready(function() {

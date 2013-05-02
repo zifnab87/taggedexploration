@@ -5,6 +5,10 @@ body {
 
 }
 
+.hidden {
+	display: none;
+}
+
 #range {
     width:800px;
     height:600px;
@@ -14,7 +18,8 @@ body {
    	margin-top: 100px;
 }
 
-.tag-interest {
+
+.tag-interest, .prediction {
 	height: 50px;
 	width: 100px;
 }
