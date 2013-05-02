@@ -3,26 +3,28 @@ $(function() {
 	xhr=null;
 	timer = null;
 	
-	cellwidth = 40;
-	cellheight = 40;
-	viewportwidth = 800;
-	viewportheight = 600;
+
+	viewportwidth = 1300;
+	viewportheight = 650;
 	db_offsetx = 100;
 	db_offsety = 100;
 	max_num_of_classes = 7;
 	training_set_size = 40;
 	markov_model_order = 2;
 	classes = new Array(1,2,3,4,5,6,7);
+	zoom_level = 1;
+	cellwidth = 40*zoom_level;
+	cellheight = 40*zoom_level;
 
 	function initialize(element){
 		var parwidth = element.parents("#range").width();
 		var parleft = element.parents("#range").height();
 		var posx = parseInt(element.find(".posx").text());
 		var posy = parseInt(element.find(".posy").text());
-		numofcellsx = parseInt(Math.ceil(viewportwidth/(cellwidth+1)));
-		numofcellsy = parseInt(Math.ceil(viewportheight/(cellheight+1)));
-		viewportwidth = numofcellsx*(cellwidth+1)-1;
-		viewportheight = numofcellsy*(cellheight+1)-1;
+		numofcellsx = parseInt(Math.floor(viewportwidth/(cellwidth+1)));
+		numofcellsy = parseInt(Math.floor(viewportheight/(cellheight+1)));
+		viewportwidth = (numofcellsx*(cellwidth+1)-1);
+		viewportheight = (numofcellsy*(cellheight+1)-1);
 		//reset the viewport size after the margins
 		$("#range").width(viewportwidth);
 		$("#range").height(viewportheight);
@@ -61,7 +63,7 @@ $(function() {
 		if (results && results[row] && results[row][column]){
 			colorclass = "color-"+results[row][column].label;
 		}
-		gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
+		gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
 	}
 
 
@@ -241,6 +243,7 @@ $(function() {
 						curtop = (curtop + cellheight+1);
 
 					}
+					console.log($(".visible").length);
 
 					tag_of_interest = find_tag_of_interest();
 					update_tag_of_interest_vis(tag_of_interest);
