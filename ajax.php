@@ -1,6 +1,11 @@
 <?php
 require_once("inc.php");
-session_start();
+
+if (!isset($_SESSION["id"])){
+	session_start();
+	$_SESSION["id"] = session_id();
+}
+
 if (isset($_POST["q"])){
 	$request=$_POST["q"];
 	$request();
@@ -26,7 +31,7 @@ function points_fetch(){
 
 function predict(){
 	if (isset($_POST["change"])){ // the label that just changed
-		$order = $_POST["change"];
+		$change = $_POST["change"];
 	}
 	if (isset($_POST["classes"])){
 		$classes = $_POST["classes"];
@@ -45,7 +50,13 @@ function predict(){
 	$chain = unserialize($_SESSION["chain"]);
 	
 	$chain->train_step($change);
+	//resave 
+	$_SESSION["chain"] = serialize($chain);
+
 	$prediction = $chain->get_most_probable_class();
+
+	var_dump($_SESSION["id"]);
+	var_dump(spl_object_hash($chain)	);
 	var_dump($chain);
 	var_dump($chainge);
 	var_dump($class);

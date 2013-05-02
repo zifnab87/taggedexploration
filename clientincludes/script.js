@@ -10,7 +10,7 @@ $(function() {
 	db_offsety = 100;
 	max_num_of_classes = 7;
 	training_set_size = 40;
-	markov_model_order = 2;
+	markov_model_order = 4;
 	classes = new Array(1,2,3,4,5,6,7);
 	zoom_level = 1;
 	cellwidth = 40*zoom_level;
