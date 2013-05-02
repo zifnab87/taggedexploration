@@ -25,6 +25,11 @@ class MarkovChain{
 	}
 
 	public function train_step($label) {
+		// do nothing if the label is not in the list of classes
+		if (!in_array($label, $this->classes) {
+			return;
+		}
+
 		// if we do not have enough training data, just build the last sequence and return
 		if (sizeof($this->last_sequence) < $this->order) {
 			$this->last_sequence[] = $label;
