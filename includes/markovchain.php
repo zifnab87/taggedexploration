@@ -1,4 +1,5 @@
 <?php
+
 class MarkovChain{
 	protected $order;
 	protected $classes=array();
@@ -107,4 +108,26 @@ class MarkovChain{
 		}
 		return $best_classes[0];
 	}
+
+	public function update_markov_chain($window_sequence) {
+		// decrement the window we want to remove
+		$depth = &$this->M;
+		for ($i=0; $i<$this->order; ++$i){
+			$depth = &$depth[$window_sequence[$i]];
+		}
+		$depth[$window_sequence[$i]] -= 1;
+
+		// increment the window we want to add
+		$depth = &$this->M;
+		for ($i=sizeof($window_sequence) - $this->order; $i < sizeof($window_sequence); ++$i){
+			if (!isset($depth[$window_sequence[$i]])){
+				$depth[$window_sequence[$i]]=array();
+			}
+			$depth = &$depth[$window_sequence[$i]];
+		}
+		$depth[$window_sequence[$i]] += 1;
+	}
 }
+
+?>
+
