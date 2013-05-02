@@ -12,7 +12,7 @@
     On-line Training set:<div class="interest-window"></div>
 </div>
 
-
+<button class="kill-session">Kill Session!</button>
 <div id="range">
     <!--<img src="map.gif" id="map" />-->
     <div id="viewport">

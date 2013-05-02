@@ -10,7 +10,7 @@ $(function() {
 	db_offsety = 100;
 	max_num_of_classes = 7;
 	training_set_size = 40;
-	markov_model_order = 4;
+	markov_model_order = 1;
 	classes = new Array(1,2,3,4,5,6,7);
 	zoom_level = 1;
 	cellwidth = 40*zoom_level;
@@ -48,6 +48,7 @@ $(function() {
 		//denote_visible($("#grid"));
 
 	}
+
 
 	function recalculate_size(element){
 		var maxrow = element.find(".maxrow").text();
@@ -181,6 +182,18 @@ $(function() {
 			$(".interest-window").children().last().remove();
 		}
 	}
+	function update_predict_vis(prediction){
+		for (var i=0; i<max_num_of_classes; i++){
+		    $(".prediction").removeClass("color-"+i);
+		}
+		if (prediction){
+			$(".prediction").addClass("color-"+prediction);
+		}
+		else {
+			$(".prediction").addClass("color-0");
+		}
+	}
+
 
 	function predict(){
 		var sequence = new Array();
@@ -198,7 +211,9 @@ $(function() {
 			   'markov_model_order': markov_model_order
 			   },
 		  success: function(data){
-		  	console.log(data);
+		  			update_predict_vis($.trim(data));
+
+
 		  }
 		});
 	}
@@ -242,7 +257,6 @@ $(function() {
 						curtop = (curtop + cellheight+1);
 
 					}
-					console.log($(".visible").length);
 
 					tag_of_interest = find_tag_of_interest();
 					update_tag_of_interest_vis(tag_of_interest);
@@ -251,6 +265,23 @@ $(function() {
 		});
 	}	
 
+	$(".kill-session").click(function(){
+		$.ajax({
+		  type: 'POST',
+		  url: 'ajax.php',
+		  data: {
+			   'q':'kill_session',
+			   },
+		  success: function(data){
+		  	$(".interest").remove();
+		  	for (var i=0; i<max_num_of_classes; i++){
+				$(".prediction").removeClass("color-"+i);
+			}	
+			$(".prediction").addClass("color-0");
+
+		  }
+		});
+	});
 
 	
 

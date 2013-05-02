@@ -28,6 +28,11 @@ function points_fetch(){
 	echo json_encode($points);
 }
 
+function kill_session(){
+	$_SESSION = array();
+	session_destroy();
+}
+
 
 function predict(){
 	if (isset($_POST["change"])){ // the label that just changed
@@ -39,7 +44,7 @@ function predict(){
 	//if (isset($_POST["training_set_size"])){
 	//	$training_set_size = $_POST["training_set_size"];
 	//}
-	if (!isset($_POST["markov_model_order"])){
+	if (isset($_POST["markov_model_order"])){
 		$order = $_POST["markov_model_order"];
 	}
 
@@ -55,12 +60,12 @@ function predict(){
 
 	$prediction = $chain->get_most_probable_class();
 
-	var_dump($_SESSION["id"]);
-	var_dump(spl_object_hash($chain)	);
-	var_dump($chain);
-	var_dump($chainge);
-	var_dump($class);
-	var_dump($prediction);
+	// var_dump($_SESSION["id"]);
+	// var_dump(spl_object_hash($chain)	);
+	//var_dump($chain);
+	//var_dump($change);
+	// var_dump($class);
+	echo $prediction;
 	//var_dump($training_set_size)
 	//$prefix_sequence = array_slice($sequence,0,$order=1);
 	//echo $order;
