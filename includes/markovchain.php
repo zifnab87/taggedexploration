@@ -26,7 +26,7 @@ class MarkovChain{
 
 	public function train_step($label) {
 		// do nothing if the label is not in the list of classes
-		if (!in_array($label, $this->classes) {
+		if (!in_array($label, $this->classes)) {
 			return;
 		}
 
