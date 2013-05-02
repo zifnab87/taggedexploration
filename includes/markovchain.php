@@ -79,6 +79,9 @@ class MarkovChain{
 			$sum += $count;
 		}
 
+		if ($sum == 0) {
+			return 0;
+		}
 
 		$probability = $depth[$sequence[$j]];
 		return $probability/$sum;
