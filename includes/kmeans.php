@@ -8,7 +8,13 @@
 define("JITTER", 2);
 
 function find_centroids($data, $k) {
-	return kmeans($data, $k)[0];
+	$centroids = kmeans($data, $k)[0];
+	$rounded_centroids = array();
+	for ($i = 0; $i < sizeof($centroids); ++$i) {
+		$pt = $centroids[$i];
+		$rounded_centroids[] = array(floor($pt[0]), floor($pt[1]));
+	}
+	return $rounded_centroids;
 }
 
 /**
