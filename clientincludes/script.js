@@ -65,10 +65,10 @@ $(function() {
 			colorclass = "color-"+result.label;
 		}
 		if (prefetched){
-			gridel.append("<div class='prefetched "+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
+			gridel.append("<div class='prefetched "+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div><div style='display:none' class='color'>"+label.result+"</div></div>");
 		}
 		else {
-			gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
+			gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div><div style='display:none' class='color'>"+label.result+"</div></div>");
 		}
 	}
 
@@ -313,12 +313,19 @@ $(function() {
 		//take all the prefetched with the color of prediction
 		if (prediction!=0){
 			var nodes = $(".prefeteched.color-"+prediction).not(".visited");
+			var x = new Array();
+			var y = new Array();
+			nodes.each(function(){
+				x.push($(this).find(".col").text());
+				y.push($(this).find(".row").text());
+			});
 			$.ajax({
 		  		type: 'POST',
 		  		url: 'ajax.php',
 		  		data: {
 			   		'q':'suggest',
-			   		'nodes':nodes,
+			   		'x':x,
+			   		'y':y,
 			   		'k': "8"
 			    },
 		    	success: function(data){
