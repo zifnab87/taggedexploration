@@ -229,24 +229,31 @@ $(function() {
 		  success: function(data){
 		  			update_predict_vis($.trim(data));
 		  			prediction = find_prediction();
-		  			prefetch(mincol,maxcol,minrow,maxrow,prediction);
+		  			var curleft = mincol*(cellwidth+1);
+					var curtop = minrow*(cellheight+1);
+					var startleft = curleft;
+					var newminrow = 3*minrow - 2*maxrow;
+					var newmaxrow = 3*maxrow - 2*minrow;
+					var newmincol = 3*mincol - 2*maxcol;
+					var newmaxcol = 3*maxcol - 2*mincol;
+					minrow = newminrow;
+					maxrow = newmaxrow;
+					mincol = newmincol;
+					maxcol = newmaxcol;
+					if (prediction!=0){
+	
+		  				prefetch(mincol,maxcol,minrow,maxrow,prediction);
+		  			}
+		  			else {
+		  				console.log("don't predict");
+		  			}
 		  }
 		});
 	}
 
 	function prefetch(mincol,maxcol,minrow,maxrow,tag_of_interest){
 		var results  = null;
-		var curleft = mincol*(cellwidth+1);
-		var curtop = minrow*(cellheight+1);
-		var startleft = curleft;
-		var newminrow = 2*minrow - maxrow;
-		var newmaxrow = 2*maxrow - minrow;
-		var newmincol = 2*mincol - maxcol;
-		var newmaxcol = 2*maxcol - mincol;
-		minrow = newminrow;
-		maxrow = newmaxrow;
-		mincol = newmincol;
-		maxcol = newmaxcol;
+
 
 		$.ajax({
 		  		type: 'POST',
@@ -269,15 +276,20 @@ $(function() {
 							//check if doesn't exist:
 					$.each(results,function(){
 						var result = $(this);
+						
+						var col = result[0]["x"];
+						var row = result[0]["y"];
+						curleft = parseInt(result[0]["x"]-db_offsety)*(cellwidth+1);
+						curtop = parseInt(result[0]["y"]-db_offsetx)*(cellheight+1);
 						//console.log(result[0]["y"]+","+result[0]["x"]);
-						var col =parseInt(result[0]["x"]-db_offsety);
-						var row = parseInt(result[0]["y"]-db_offsetx);
-						curleft = col*(cellwidth+1);
-						curtop = row*(cellheight+1);
 						if($(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).length!=1){
-							addcelltogrid(col,row,curleft,curtop,$("#grid"),result[0],true);
+							addcelltogrid(row,col,curleft,curtop,$("#grid"),result[0],true);
+							//console.log("did add");
 							//$(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).addClass("visible");
 							//countadded++;
+						}
+						else {
+							//console.log("didn't add");
 						}
 
 
@@ -325,6 +337,7 @@ $(function() {
 		    	success: function(data){
 		  			//remove the class visible from any cell and add to the new ones
 		  			$(".visible").removeClass("visible");
+
 			   		var results = $.parseJSON(data);
 			   		for (var i=minrow; i<maxrow; i++){
 						for (var j=mincol; j<maxcol; j++){
