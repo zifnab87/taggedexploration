@@ -39,7 +39,7 @@ $(function() {
 
 		var curposx = posx;
 		var curposy = posy;
-		fetch(0,numofcellsx,0,numofcellsy,db_offsetx,db_offsety);
+		fetch(0,numofcellsx,0,numofcellsy);
 
 		$("#grid").find(".maxcolumn").text(numofcellsx);
 		$("#grid").find(".maxrow").text(numofcellsy);
@@ -59,12 +59,17 @@ $(function() {
 
 	}
 
-	function addcelltogrid(row,column,left,top,gridel,results){
+	function addcelltogrid(row,column,left,top,gridel,result,prefetched){
 		var colorclass = "";
-		if (results && results[row] && results[row][column]){
-			colorclass = "color-"+results[row][column].label;
+		if (result){
+			colorclass = "color-"+result.label;
 		}
-		gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
+		if (prefetched){
+			gridel.append("<div class='prefetched "+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
+		}
+		else {
+			gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
+		}
 	}
 
 
@@ -102,10 +107,10 @@ $(function() {
 				$(this).addClass("visible");
 			}
 		});
-		console.log("visible cells:"+$(".visible").length);
+		//console.log("visible cells:"+$(".visible").length);
 	}
 	//finds the visible boundaries of the viewport from the  visible cells and returns a tuple f min/max rows/columns
-	function find_visible_boundaries(){
+	/*function find_visible_boundaries(){
 
 		var minrow = 100000000000;
 		var maxrow = 0;
@@ -133,7 +138,8 @@ $(function() {
 		tuple.mincol = mincol;
 		tuple.maxcol = maxcol;
 		return tuple;
-	}
+	}*/
+
 
 
 	function pan(){
@@ -152,7 +158,9 @@ $(function() {
 		var minrow = Math.ceil(viewporttopdif / (cellheight+1));
 		var maxcol = mincol + numofcellsx;
 		var maxrow = minrow + numofcellsy;
-		fetch(mincol,maxcol,minrow,maxrow,db_offsetx,db_offsety);
+		fetch(mincol,maxcol,minrow,maxrow);
+
+
 	}
 
 	function find_tag_of_interest(){
@@ -170,6 +178,14 @@ $(function() {
 			}
 		}
 		return maxtag;
+	}
+
+	function find_prediction(){
+		for (var i=0; i<max_num_of_classes; i++){
+			if($(".prediction").hasClass("color-"+i)){
+				return i;
+			}
+		}
 	}
 
 	function update_tag_of_interest_vis(tag){
@@ -195,7 +211,7 @@ $(function() {
 	}
 
 
-	function predict(){
+	function predict(mincol,maxcol,minrow,maxrow){
 		var sequence = new Array();
 		var count = 0;
 		var change = $(".interest-window .color.hidden").first().text();
@@ -212,13 +228,80 @@ $(function() {
 			   },
 		  success: function(data){
 		  			update_predict_vis($.trim(data));
-
-
+		  			prediction = find_prediction();
+		  			prefetch(mincol,maxcol,minrow,maxrow,prediction);
 		  }
 		});
 	}
 
-	function fetch(mincol,maxcol,minrow,maxrow,db_offsetx,db_offsety){
+	function prefetch(mincol,maxcol,minrow,maxrow,tag_of_interest){
+		var results  = null;
+		var curleft = mincol*(cellwidth+1);
+		var curtop = minrow*(cellheight+1);
+		var startleft = curleft;
+		var newminrow = 2*minrow - maxrow;
+		var newmaxrow = 2*maxrow - minrow;
+		var newmincol = 2*mincol - maxcol;
+		var newmaxcol = 2*maxcol - mincol;
+		minrow = newminrow;
+		maxrow = newmaxrow;
+		mincol = newmincol;
+		maxcol = newmaxcol;
+
+		$.ajax({
+		  		type: 'POST',
+		  		url: 'ajax.php',
+		  		data: {
+					'q':'points_prefetch',
+					'xmin':mincol, 
+				    'xmax':maxcol, 
+				    'ymin':minrow, 
+				    "ymax": maxrow,
+				    "tag_of_interest": tag_of_interest,
+			    },
+		  		success: function(data){
+		  			//remove the class visible from any cell and add to the new ones
+		  			//$(".visible").removeClass("visible");
+		  			var countadded=0;
+			   		var results = $.parseJSON(data);
+			   		//for (var i=minrow; i<maxrow; i++){
+					//	for (var j=mincol; j<maxcol; j++){
+							//check if doesn't exist:
+					$.each(results,function(){
+						var result = $(this);
+						//console.log(result[0]["y"]+","+result[0]["x"]);
+						var col =parseInt(result[0]["x"]-db_offsety);
+						var row = parseInt(result[0]["y"]-db_offsetx);
+						curleft = col*(cellwidth+1);
+						curtop = row*(cellheight+1);
+						if($(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).length!=1){
+							addcelltogrid(col,row,curleft,curtop,$("#grid"),result[0],true);
+							//$(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).addClass("visible");
+							//countadded++;
+						}
+
+
+						//curleft = (curleft + cellwidth+1);
+						//}
+						//curleft = startleft+;
+						//curtop = (curtop + cellheight+1);
+					});
+							
+							//denote as visible
+							
+							
+					//}
+					//console.log(countadded);
+					//tag_of_interest = find_tag_of_interest();
+					//update_tag_of_interest_vis(tag_of_interest);
+					//predict();
+					//prefetch(mincol,maxcol,minrow,maxrow,tag_of_interest);
+			}
+		}); 
+	}
+
+
+	function fetch(mincol,maxcol,minrow,maxrow){
 
 		var results  = null;
 		var curleft = mincol*(cellwidth+1);
@@ -229,16 +312,17 @@ $(function() {
 		mincol += db_offsetx;
 		maxcol += db_offsetx;
 		$.ajax({
-		  type: 'POST',
-		  url: 'ajax.php',
-		  data: {
+		  	type: 'POST',
+		  	url: 'ajax.php',
+		  	data: {
 			   'q':'points_fetch',
 			   'xmin':mincol, 
 			   'xmax':maxcol, 
 			   'ymin':minrow, 
-			   "ymax": maxrow
+			   "ymax": maxrow,
+			   "async": false
 			   },
-		  success: function(data){
+		    	success: function(data){
 		  			//remove the class visible from any cell and add to the new ones
 		  			$(".visible").removeClass("visible");
 			   		var results = $.parseJSON(data);
@@ -246,7 +330,7 @@ $(function() {
 						for (var j=mincol; j<maxcol; j++){
 							//check if doesn't exist:
 							if($(".cell.row-"+i+".col-"+j).length!=1){
-								addcelltogrid(i,j,curleft,curtop,$("#grid"),results);
+								addcelltogrid(i,j,curleft,curtop,$("#grid"),results[i][j],false);
 								//countadded++;
 							}
 							//denote as visible
@@ -259,9 +343,20 @@ $(function() {
 					}
 
 					tag_of_interest = find_tag_of_interest();
+					//console.log(1);
 					update_tag_of_interest_vis(tag_of_interest);
-					predict();
-			   },
+										//console.log(2);
+					predict(mincol,maxcol,minrow,maxrow);
+										//console.log(3);
+					
+					//console.log("prediction"+prediction);
+					//prefetch(mincol,maxcol,minrow,maxrow,prediction);
+					//predict();
+					//prediction = find_prediction();
+					//console.log(prediction);
+					//prefetch(mincol,maxcol,minrow,maxrow,prediction);
+			   
+				}
 		});
 	}	
 
@@ -295,6 +390,8 @@ $(function() {
 							
 						//expand();	
 						pan();
+						//console.log(tag_of_interest);
+						
 						//console.log("async after pan"+tag_of_interest);
 
 					}

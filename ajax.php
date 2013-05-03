@@ -28,6 +28,27 @@ function points_fetch(){
 	echo json_encode($points);
 }
 
+function points_prefetch(){
+	if (isset($_POST["xmin"])){
+		$xmin = $_POST["xmin"];
+	}
+	if (isset($_POST["xmax"])){
+		$xmax = $_POST["xmax"];
+	}
+	if (isset($_POST["ymin"])){
+		$ymin = $_POST["ymin"];
+	}
+	if (isset($_POST["ymax"])){
+		$ymax = $_POST["ymax"];
+	}
+	if (isset($_POST["tag_of_interest"])){
+		$tag_of_interest = $_POST["tag_of_interest"];
+	}
+
+	$points = get_points_by_range_and_interest($xmin,$xmax,$ymin,$ymax,$tag_of_interest);
+	echo json_encode($points);
+}
+
 function kill_session(){
 	$_SESSION = array();
 	session_destroy();

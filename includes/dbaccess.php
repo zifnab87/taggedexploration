@@ -59,6 +59,22 @@ function get_points_by_range($xmin,$xmax,$ymin,$ymax){
 	}
 	return $points;
 }
+function get_points_by_range_and_interest($xmin,$xmax,$ymin,$ymax,$tag_of_interest){
+	global $db;
+	$res=$db->query("SELECT * FROM points WHERE `x`>=$xmin AND `x`<=$xmax AND `y`>=$ymin AND `y`<=$ymax AND `label`='$tag_of_interest'",0);
+	$row=mysql_fetch_array($res);
+	$points = array();
+	while($row=mysql_fetch_array($res)){
+		$point["id"] = $row["id"];
+		$point["label"] = $row["label"];
+		$point["x"] = $row["x"];
+		$point["y"] = $row["y"];
+		$points[]=$point;
+		
+	}
+	return $points;
+}
+
 
 function get_points_by_label($label){
 	global $db;
