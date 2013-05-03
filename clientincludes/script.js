@@ -251,7 +251,7 @@ $(function() {
 		});
 	}
 
-	function prefetch(mincol,maxcol,minrow,maxrow,tag_of_interest){
+	function prefetch(mincol,maxcol,minrow,maxrow,prediction){
 		var results  = null;
 
 
@@ -264,7 +264,7 @@ $(function() {
 				    'xmax':maxcol, 
 				    'ymin':minrow, 
 				    "ymax": maxrow,
-				    "tag_of_interest": tag_of_interest,
+				    "prediction": prediction,
 			    },
 		  		success: function(data){
 		  			//remove the class visible from any cell and add to the new ones
@@ -288,9 +288,6 @@ $(function() {
 							//$(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).addClass("visible");
 							//countadded++;
 						}
-						else {
-							//console.log("didn't add");
-						}
 
 
 						//curleft = (curleft + cellwidth+1);
@@ -298,7 +295,7 @@ $(function() {
 						//curleft = startleft+;
 						//curtop = (curtop + cellheight+1);
 					});
-							
+					suggest(prediction);
 							//denote as visible
 							
 							
@@ -312,6 +309,24 @@ $(function() {
 		}); 
 	}
 
+	function suggest(prediction){
+		//take all the prefetched with the color of prediction
+		if (prediction!=0){
+			var nodes = $(".prefeteched.color-"+prediction).not(".visited");
+			$.ajax({
+		  		type: 'POST',
+		  		url: 'ajax.php',
+		  		data: {
+			   		'q':'suggest',
+			   		'nodes':nodes,
+			   		'k': "8"
+			    },
+		    	success: function(data){
+		    		console.log(data);
+		    	}
+		   });
+		}
+	}
 
 	function fetch(mincol,maxcol,minrow,maxrow){
 
@@ -331,8 +346,7 @@ $(function() {
 			   'xmin':mincol, 
 			   'xmax':maxcol, 
 			   'ymin':minrow, 
-			   "ymax": maxrow,
-			   "async": false
+			   "ymax": maxrow
 			   },
 		    	success: function(data){
 		  			//remove the class visible from any cell and add to the new ones
@@ -348,6 +362,8 @@ $(function() {
 							}
 							//denote as visible
 							$(".cell.row-"+i+".col-"+j).addClass("visible");
+							//denote as visited
+							$(".cell.row-"+i+".col-"+j).addClass("visited");
 							curleft = (curleft + cellwidth+1);
 						}
 						curleft = startleft;

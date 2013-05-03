@@ -28,32 +28,6 @@ function points_fetch(){
 	echo json_encode($points);
 }
 
-function points_prefetch(){
-	if (isset($_POST["xmin"])){
-		$xmin = $_POST["xmin"];
-	}
-	if (isset($_POST["xmax"])){
-		$xmax = $_POST["xmax"];
-	}
-	if (isset($_POST["ymin"])){
-		$ymin = $_POST["ymin"];
-	}
-	if (isset($_POST["ymax"])){
-		$ymax = $_POST["ymax"];
-	}
-	if (isset($_POST["tag_of_interest"])){
-		$tag_of_interest = $_POST["tag_of_interest"];
-	}
-
-	$points = get_points_by_range_and_interest($xmin,$xmax,$ymin,$ymax,$tag_of_interest);
-	echo json_encode($points);
-}
-
-function kill_session(){
-	$_SESSION = array();
-	session_destroy();
-}
-
 
 function predict(){
 	if (isset($_POST["change"])){ // the label that just changed
@@ -94,6 +68,47 @@ function predict(){
 	//echo $chain->get_most_probable_class($prefix_sequence);
 
 }
+
+function points_prefetch(){
+	if (isset($_POST["xmin"])){
+		$xmin = $_POST["xmin"];
+	}
+	if (isset($_POST["xmax"])){
+		$xmax = $_POST["xmax"];
+	}
+	if (isset($_POST["ymin"])){
+		$ymin = $_POST["ymin"];
+	}
+	if (isset($_POST["ymax"])){
+		$ymax = $_POST["ymax"];
+	}
+	if (isset($_POST["prediction"])){
+		$prediction = $_POST["prediction"];
+	}
+
+	$points = get_points_by_range_and_interest($xmin,$xmax,$ymin,$ymax,$prediction);
+	echo json_encode($points);
+}
+
+function suggest(){
+	if (isset($_POST["nodes"])){
+		$nodes = $_POST["nodes"];
+	}
+	if (isset($_POST["k"])){
+		$k = $_POST["k"];
+	}
+	$centroids = find_centroid($nodes,$k);
+	echo json_encode($centroids);
+}
+
+
+function kill_session(){
+	$_SESSION = array();
+	session_destroy();
+}
+
+
+
 
 
 
