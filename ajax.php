@@ -102,9 +102,9 @@ function suggest(){
 	}
 	$pts = array();
 	for ($i = 0; $i < sizeof($x); ++$i) {
-		$pts[] = array($x, $y);
+		$pts[] = array($x[$i], $y[$i]);
 	}
-	$centroids = find_centroids($pts,$k);
+	$centroids = find_centroids($pts, $k);
 	echo json_encode($centroids);
 }
 
