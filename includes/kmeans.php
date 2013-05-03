@@ -7,6 +7,10 @@
 
 define("JITTER", 2);
 
+function find_centroids($data, $k) {
+	return kmeans($data, $k)[0];
+}
+
 /**
 * Clusters points using the kmeans clustering algorithm
 * @param array $data the data points to cluster
