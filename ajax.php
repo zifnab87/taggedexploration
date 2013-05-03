@@ -91,13 +91,20 @@ function points_prefetch(){
 }
 
 function suggest(){
-	if (isset($_POST["nodes"])){
-		$nodes = $_POST["nodes"];
+	if (isset($_POST["x"])){
+		$x = $_POST["x"];
+	}
+	if (isset($_POST["y"])){
+		$y = $_POST["y"];
 	}
 	if (isset($_POST["k"])){
 		$k = $_POST["k"];
 	}
-	$centroids = find_centroid($nodes,$k);
+	$pts = array();
+	for ($i = 0; $i < sizeof($x); ++$i) {
+		$pts[] = array($x, $y);
+	}
+	$centroids = find_centroids($pts,$k);
 	echo json_encode($centroids);
 }
 
