@@ -469,12 +469,20 @@ $(function() {
 						
 						var col = centroid["x"];
 						var row = centroid["y"];
-						curleft = parseInt(centroid["x"]-db_offsety)*(cellwidth+1);
-						curtop = parseInt(centroid["y"]-db_offsetx)*(cellheight+1);
+						curleft = parseInt(centroid["x"]-db_offsetx)*(cellwidth+1);
+						curtop = parseInt(centroid["y"]-db_offsety)*(cellheight+1);
 						//console.log(result[0]["y"]+","+result[0]["x"]);
 						//if($(".cell.row-"+centroid["y"]+".col-"+centroid["x"]).length!=1){
 
 						visualize_centroid(row,col,curleft,curtop,$("#grid"));
+						//console.log("!!!"+minrow);
+						console.log("centerx "+parseInt((mincol-db_offsetx+maxcol-db_offsetx)/2));
+						console.log("centery "+parseInt((minrow-db_offsety+maxrow-db_offsety)/2));
+						var viewportcenterx = parseInt((mincol-db_offsetx+maxcol-db_offsetx)/2)*(cellwidth+1);
+						var viewportcentery = parseInt((minrow-db_offsety+maxrow-db_offsety)/2)*(cellheight+1);
+						var centroidy = curtop;
+						var centroidx = curleft;
+						visualize_arrow(centroidy,centroidx, viewportcentery,viewportcenterx);
 
 							//console.log("did add");
 							//$(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).addClass("visible");
@@ -496,8 +504,12 @@ $(function() {
 		if ($(".col-"+column+".row-"+row).length==0){
 			gridel.append("<div class='cell color-0 row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
 		}
-		$(".col-"+column+".row-"+row).not(".visited,.visible").addClass("centroid");
-		console.log($(".col-"+column+".row-"+row).length+"brika"+column+","+row);
+		$(".col-"+column+".row-"+row).addClass("centroid");
+	}
+
+	function visualize_arrow(centroidy,centroidx, viewportcentery,viewportcenterx){
+ 		console.log(centroidy+","+centroidx);
+ 		console.log(viewportcentery+","+viewportcenterx);
 	}
 
 	function fetch(mincol,maxcol,minrow,maxrow){
