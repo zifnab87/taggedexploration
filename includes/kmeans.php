@@ -12,7 +12,7 @@ function find_centroids($data, $k) {
 	$rounded_centroids = array();
 	for ($i = 0; $i < sizeof($centroids); ++$i) {
 		$pt = $centroids[$i];
-		$rounded_centroids[] = array(floor($pt[0]), floor($pt[1]));
+		$rounded_centroids[] = array( "x" => floor($pt[0]), "y" => floor($pt[1]));
 	}
 	return $rounded_centroids;
 }

@@ -1,3 +1,127 @@
+	function serialize (mixed_value) {
+  // http://kevin.vanzonneveld.net
+  // +   original by: Arpad Ray (mailto:arpad@php.net)
+  // +   improved by: Dino
+  // +   bugfixed by: Andrej Pavlovic
+  // +   bugfixed by: Garagoth
+  // +      input by: DtTvB (http://dt.in.th/2008-09-16.string-length-in-bytes.html)
+  // +   bugfixed by: Russell Walker (http://www.nbill.co.uk/)
+  // +   bugfixed by: Jamie Beck (http://www.terabit.ca/)
+  // +      input by: Martin (http://www.erlenwiese.de/)
+  // +   bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net/)
+  // +   improved by: Le Torbi (http://www.letorbi.de/)
+  // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net/)
+  // +   bugfixed by: Ben (http://benblume.co.uk/)
+  // %          note: We feel the main purpose of this function should be to ease the transport of data between php & js
+  // %          note: Aiming for PHP-compatibility, we have to translate objects to arrays
+  // *     example 1: serialize(['Kevin', 'van', 'Zonneveld']);
+  // *     returns 1: 'a:3:{i:0;s:5:"Kevin";i:1;s:3:"van";i:2;s:9:"Zonneveld";}'
+  // *     example 2: serialize({firstName: 'Kevin', midName: 'van', surName: 'Zonneveld'});
+  // *     returns 2: 'a:3:{s:9:"firstName";s:5:"Kevin";s:7:"midName";s:3:"van";s:7:"surName";s:9:"Zonneveld";}'
+  var val, key, okey,
+    ktype = '', vals = '', count = 0,
+    _utf8Size = function (str) {
+      var size = 0,
+        i = 0,
+        l = str.length,
+        code = '';
+      for (i = 0; i < l; i++) {
+        code = str.charCodeAt(i);
+        if (code < 0x0080) {
+          size += 1;
+        }
+        else if (code < 0x0800) {
+          size += 2;
+        }
+        else {
+          size += 3;
+        }
+      }
+      return size;
+    },
+    _getType = function (inp) {
+      var match, key, cons, types, type = typeof inp;
+
+      if (type === 'object' && !inp) {
+        return 'null';
+      }
+      if (type === 'object') {
+        if (!inp.constructor) {
+          return 'object';
+        }
+        cons = inp.constructor.toString();
+        match = cons.match(/(\w+)\(/);
+        if (match) {
+          cons = match[1].toLowerCase();
+        }
+        types = ['boolean', 'number', 'string', 'array'];
+        for (key in types) {
+          if (cons == types[key]) {
+            type = types[key];
+            break;
+          }
+        }
+      }
+      return type;
+    },
+    type = _getType(mixed_value)
+  ;
+
+  switch (type) {
+    case 'function':
+      val = '';
+      break;
+    case 'boolean':
+      val = 'b:' + (mixed_value ? '1' : '0');
+      break;
+    case 'number':
+      val = (Math.round(mixed_value) == mixed_value ? 'i' : 'd') + ':' + mixed_value;
+      break;
+    case 'string':
+      val = 's:' + _utf8Size(mixed_value) + ':"' + mixed_value + '"';
+      break;
+    case 'array': case 'object':
+      val = 'a';
+  /*
+        if (type === 'object') {
+          var objname = mixed_value.constructor.toString().match(/(\w+)\(\)/);
+          if (objname == undefined) {
+            return;
+          }
+          objname[1] = this.serialize(objname[1]);
+          val = 'O' + objname[1].substring(1, objname[1].length - 1);
+        }
+        */
+
+      for (key in mixed_value) {
+        if (mixed_value.hasOwnProperty(key)) {
+          ktype = _getType(mixed_value[key]);
+          if (ktype === 'function') {
+            continue;
+          }
+
+          okey = (key.match(/^[0-9]+$/) ? parseInt(key, 10) : key);
+          vals += this.serialize(okey) + this.serialize(mixed_value[key]);
+          count++;
+        }
+      }
+      val += ':' + count + ':{' + vals + '}';
+      break;
+    case 'undefined':
+      // Fall-through
+    default:
+      // if the JS object has a property which contains a null value, the string cannot be unserialized by PHP
+      val = 'N';
+      break;
+  }
+  if (type !== 'object' && type !== 'array') {
+    val += ';';
+  }
+  return val;
+}
+
+
+
 $(function() {
 	ajax_path = 'includes/ajax.php';
 	xhr=null;
@@ -15,6 +139,9 @@ $(function() {
 	zoom_level = 1;
 	cellwidth = 40*zoom_level;
 	cellheight = 40*zoom_level;
+
+
+
 
 	function initialize(element){
 		var parwidth = element.parents("#range").width();
@@ -60,15 +187,15 @@ $(function() {
 	}
 
 	function addcelltogrid(row,column,left,top,gridel,result,prefetched){
-		var colorclass = "";
+		var colorclass = "color-0";
 		if (result){
 			colorclass = "color-"+result.label;
 		}
 		if (prefetched){
-			gridel.append("<div class='prefetched "+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div><div style='display:none' class='color'>"+label.result+"</div></div>");
+			gridel.append("<div class='prefetched "+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div><div style='display:none' class='color'>"+colorclass+"</div></div>");
 		}
 		else {
-			gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div><div style='display:none' class='color'>"+label.result+"</div></div>");
+			gridel.append("<div class='"+colorclass+" cell row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div><div style='display:none' class='color'>"+colorclass+"</div></div>");
 		}
 	}
 
@@ -295,7 +422,7 @@ $(function() {
 						//curleft = startleft+;
 						//curtop = (curtop + cellheight+1);
 					});
-					suggest(prediction);
+					suggest(mincol,maxcol,minrow,maxrow,prediction);
 							//denote as visible
 							
 							
@@ -309,30 +436,68 @@ $(function() {
 		}); 
 	}
 
-	function suggest(prediction){
+	function suggest(mincol,maxcol,minrow,maxrow,prediction){
 		//take all the prefetched with the color of prediction
 		if (prediction!=0){
-			var nodes = $(".prefeteched.color-"+prediction).not(".visited");
-			var x = new Array();
-			var y = new Array();
+			console.log(prediction);
+			var nodes = $(".prefetched.color-"+prediction).not(".visited");
+			console.log(nodes.length);
+			var x_array = new Array();
+			var y_array = new Array();
 			nodes.each(function(){
-				x.push($(this).find(".col").text());
-				y.push($(this).find(".row").text());
+				x_array.push($(this).find(".col").text());
+				y_array.push($(this).find(".row").text());
 			});
 			$.ajax({
 		  		type: 'POST',
 		  		url: 'ajax.php',
 		  		data: {
 			   		'q':'suggest',
-			   		'x':x,
-			   		'y':y,
+			   		'x':serialize(x_array),
+			   		'y':serialize(y_array),
 			   		'k': "8"
 			    },
 		    	success: function(data){
-		    		console.log(data);
+		    		var centroids = $.parseJSON(data);
+		    		var centroid = $(this)[0];
+		    		var curleft = mincol*(cellwidth+1);
+					var curtop = minrow*(cellheight+1);
+					var startleft = curleft;
+					$(".centroid").removeClass("centroid");
+					$.each(centroids,function(){
+						var centroid = $(this)[0];
+						
+						var col = centroid["x"];
+						var row = centroid["y"];
+						curleft = parseInt(centroid["x"]-db_offsety)*(cellwidth+1);
+						curtop = parseInt(centroid["y"]-db_offsetx)*(cellheight+1);
+						//console.log(result[0]["y"]+","+result[0]["x"]);
+						//if($(".cell.row-"+centroid["y"]+".col-"+centroid["x"]).length!=1){
+
+						visualize_centroid(row,col,curleft,curtop,$("#grid"));
+
+							//console.log("did add");
+							//$(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).addClass("visible");
+							//countadded++;
+						//}
+		    		});
 		    	}
-		   });
+		    });
 		}
+	}
+
+	function visualize_centroid(row,column,left,top,gridel){
+		var colorclass = "color-0";
+
+		//if (result){
+		//	colorclass = "color-"+result.label;
+		//}
+		//gridel.append("<div class='centroid row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div><div style='display:none' class='color'>"+colorclass+"</div></div>");
+		if ($(".col-"+column+".row-"+row).length==0){
+			gridel.append("<div class='cell color-0 row-"+row+" col-"+column+"' style='left:"+left+"px; height:"+cellheight+"px; width:"+cellwidth+"px; top:"+top+"px'><div style='display:none' class='col'>"+column+"</div><div style='display:none' class='row'>"+row+"</div></div>");
+		}
+		$(".col-"+column+".row-"+row).not(".visited,.visible").addClass("centroid");
+		console.log($(".col-"+column+".row-"+row).length+"brika"+column+","+row);
 	}
 
 	function fetch(mincol,maxcol,minrow,maxrow){
