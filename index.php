@@ -10,10 +10,23 @@
 	Current Interest: <div class="tag-interest"></div>
     Predict Interest: <div class="prediction"></div>
     On-line Training set:<div class="interest-window"></div>
+  
+
 </div>
+
 
 <button class="kill-session">Kill Session!</button>
 <div id="range">
+      <div class="arrow-container">
+        <div class="arrow-0"></div>
+        <div class="arrow-1"></div>
+        <div class="arrow-2"></div>
+        <div class="arrow-3"></div>
+        <!--<div class="arrow-4"></div>
+        <div class="arrow-5"></div>
+        <div class="arrow-6"></div>
+        <div class="arrow-7"></div>-->
+    </div>
     <!--<img src="map.gif" id="map" />-->
     <div id="viewport">
 

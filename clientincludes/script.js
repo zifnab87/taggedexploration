@@ -455,7 +455,7 @@ $(function() {
 			   		'q':'suggest',
 			   		'x':serialize(x_array),
 			   		'y':serialize(y_array),
-			   		'k': "8"
+			   		'k': "4"
 			    },
 		    	success: function(data){
 		    		var centroids = $.parseJSON(data);
@@ -464,7 +464,7 @@ $(function() {
 					var curtop = minrow*(cellheight+1);
 					var startleft = curleft;
 					$(".centroid").removeClass("centroid");
-					$.each(centroids,function(){
+					$.each(centroids,function(i){
 						var centroid = $(this)[0];
 						
 						var col = centroid["x"];
@@ -482,7 +482,7 @@ $(function() {
 						var viewportcentery = parseInt((minrow-db_offsety+maxrow-db_offsety)/2)*(cellheight+1);
 						var centroidy = curtop;
 						var centroidx = curleft;
-						visualize_arrow(centroidy,centroidx, viewportcentery,viewportcenterx);
+						visualize_arrow(centroidy,centroidx, viewportcentery,viewportcenterx,i);
 
 							//console.log("did add");
 							//$(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).addClass("visible");
@@ -507,9 +507,21 @@ $(function() {
 		$(".col-"+column+".row-"+row).addClass("centroid");
 	}
 
-	function visualize_arrow(centroidy,centroidx, viewportcentery,viewportcenterx){
- 		console.log(centroidy+","+centroidx);
- 		console.log(viewportcentery+","+viewportcenterx);
+	function visualize_arrow(centroidy,centroidx, viewportcentery,viewportcenterx,index){
+ 		//console.log(centroidy+","+centroidx);
+ 		//console.log(viewportcentery+","+viewportcenterx);
+ 		var tan = (centroidy-viewportcentery)/(centroidx-viewportcenterx);
+		var argtangent = Math.atan(tan);
+		var argtangent2 = Math.atan2((centroidy-viewportcentery),(centroidx-viewportcenterx));
+		var degrees = argtangent2*57.29;
+		console.log(index);
+		$(".arrow-container .arrow-"+index).css("text-indent","0px");
+		$(".arrow-container .arrow-"+index).animate(
+			{textIndent: degrees},{
+			step: function(now,fx) {
+  				$(this).css('-webkit-transform','rotate('+now+'deg)'); 
+			}
+		},"linear");
 	}
 
 	function fetch(mincol,maxcol,minrow,maxrow){

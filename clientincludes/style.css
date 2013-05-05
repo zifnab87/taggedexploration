@@ -2,7 +2,6 @@ ul {list-style-type:none}
 
 body {
 	margin: 0px;
-
 }
 
 .hidden {
@@ -16,7 +15,27 @@ body {
     border:1px solid black;
    	margin: 0 auto;
    	margin-top: 100px;
+   	position: relative;
 }
+
+
+.arrow-container {
+	top : 50%;
+	left: 37%;
+	z-index: 1;
+	position:absolute;
+
+}
+.arrow-container div{
+	background-image: url(arrow.png);
+	background-size: 100% 100%;
+	width: 400px;
+	height: 40px;
+	position:absolute;
+	-webkit-transform : rotate(30deg);
+	opacity: 0.4;
+}
+
 
 
 .tag-interest, .prediction {
