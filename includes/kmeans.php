@@ -7,12 +7,30 @@
 
 define("JITTER", 2);
 
-function find_centroids($data, $k) {
-	$centroids = kmeans($data, $k)[0];
+function find_centroids($data, $k, $min_cluster_size, $max_avg_distance) {
+	$clusters = kmeans($data, $k);
 	$rounded_centroids = array();
 	for ($i = 0; $i < sizeof($centroids); ++$i) {
-		$pt = $centroids[$i];
-		$rounded_centroids[] = array( "x" => floor($pt[0]), "y" => floor($pt[1]));
+		$centroid = $clusters[$i][0];
+		$pts = $clusters[$i][1];
+
+		// skip this centroid if the cluster size is too small
+		if (sizeof($pts) < $min_cluster_size) {
+			continue;
+		}
+
+		$total_distance = 0;
+		for ($j = 0; $j < sizeof($pts); ++$j) {
+			$pt = $pts[$j];
+			$dx = $pt[0] - $centroid[0];
+			$dy = $pt[1] - $centroid[1];
+			$total_distance += sqrt($dx * $dx + $dy * $dy);
+		}
+
+		// only add this centroid if the cluster is tight enough
+		if ($total_distance / sizeof($pts) < $max_avg_distance) {
+			$rounded_centroids[] = array( "x" => floor($centroid[0]), "y" => floor($centroid[1]));
+		}
 	}
 	return $rounded_centroids;
 }
