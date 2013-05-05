@@ -100,13 +100,19 @@ function suggest(){
 	if (isset($_POST["k"])) {
 		$k = $_POST["k"];
 	}
+	if (isset($_POST["min_cluster_size"])){
+		$min_cluster_size = $_POST["min_cluster_size"];
+	}
+	if (isset($_POST["max_distance"])){
+		$max_distance = $_POST["max_distance"];
+	}
 
 	$pts = array();
 	for ($i = 0; $i < sizeof($x); ++$i) {
 		$pts[] = array($x[$i], $y[$i]);
 	}
 
-	$centroids = find_centroids($pts, $k);
+	$centroids = find_centroids($pts, $k,$min_cluster_size,$max_distance);
 	echo json_encode($centroids);
 }
 

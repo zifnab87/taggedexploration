@@ -10,10 +10,10 @@ define("JITTER", 2);
 function find_centroids($data, $k, $min_cluster_size, $max_avg_distance) {
 	$clusters = kmeans($data, $k);
 	$rounded_centroids = array();
-	for ($i = 0; $i < sizeof($centroids); ++$i) {
-		$centroid = $clusters[$i][0];
-		$pts = $clusters[$i][1];
-
+	for ($i = 0; $i < $k; ++$i) {
+		$centroids = $clusters[0][$i];
+		$pts = $clusters[1][$i];
+	
 		// skip this centroid if the cluster size is too small
 		if (sizeof($pts) < $min_cluster_size) {
 			continue;

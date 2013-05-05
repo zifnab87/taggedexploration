@@ -435,6 +435,15 @@ $(function() {
 			}
 		}); 
 	}
+	//if an arrow is clicked make the big jump
+	function viewport_jump(newcenterx,newcentery){
+		var newleft = parseInt(newcenterx - viewportwidth/2);
+		var newright = parseInt(newcentery - viewportheight/2);
+		//$("#viewport").css("left",newleft+"px").css("right",newright+"px");
+		$("#viewport").animate({left: '250px'},'slow');
+		//pan();
+	}
+
 
 	function suggest(mincol,maxcol,minrow,maxrow,prediction){
 		//take all the prefetched with the color of prediction
@@ -455,7 +464,9 @@ $(function() {
 			   		'q':'suggest',
 			   		'x':serialize(x_array),
 			   		'y':serialize(y_array),
-			   		'k': "4"
+			   		'k': "4",
+			   		'min_cluster_size': "100",
+			   		'max_distance':"5"
 			    },
 		    	success: function(data){
 		    		var centroids = $.parseJSON(data);
@@ -626,6 +637,7 @@ $(function() {
 			console.log("ready");
 
 			initialize($("#grid"));
+			viewport_jump(100,100);
 			//autogrowupgrade();
 			//document.execCommand("enableObjectResizing", false, false);
 
