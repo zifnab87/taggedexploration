@@ -7,30 +7,30 @@
 
 define("JITTER", 2);
 
-function find_centroids($data, $k, $min_cluster_size, $max_avg_distance) {
-	$clusters = kmeans($data, $k);
+function find_centroids($data, $k, $max_distance) {
+	$clusters = kmeans($data, $k, $max_distance);
 	$rounded_centroids = array();
 	for ($i = 0; $i < $k; ++$i) {
 		$centroids = $clusters[0][$i];
-		$pts = $clusters[1][$i];
+//		$pts = $clusters[1][$i];
 	
 		// skip this centroid if the cluster size is too small
-		if (sizeof($pts) < $min_cluster_size) {
-			continue;
-		}
+//		if (sizeof($pts) < $min_cluster_size) {
+//			continue;
+//		}
 
-		$total_distance = 0;
-		for ($j = 0; $j < sizeof($pts); ++$j) {
-			$pt = $pts[$j];
-			$dx = $pt[0] - $centroid[0];
-			$dy = $pt[1] - $centroid[1];
-			$total_distance += sqrt($dx * $dx + $dy * $dy);
-		}
+//		$total_distance = 0;
+//		for ($j = 0; $j < sizeof($pts); ++$j) {
+//			$pt = $pts[$j];
+//			$dx = $pt[0] - $centroid[0];
+//			$dy = $pt[1] - $centroid[1];
+//			$total_distance += sqrt($dx * $dx + $dy * $dy);
+//		}
 
 		// only add this centroid if the cluster is tight enough
-		if ($total_distance / sizeof($pts) < $max_avg_distance) {
+//		if ($total_distance / sizeof($pts) < $max_avg_distance) {
 			$rounded_centroids[] = array( "x" => floor($centroid[0]), "y" => floor($centroid[1]));
-		}
+//		}
 	}
 	return $rounded_centroids;
 }
@@ -41,7 +41,7 @@ function find_centroids($data, $k, $min_cluster_size, $max_avg_distance) {
 * @param int $k The number of clusters to use 
 * @return array A mixed array contiaining an array of centroids, and k arrays containing clusters and the indeces of the points it contains
 */
-function kmeans($data, $k) {
+function kmeans($data, $k, $max_distance) {
 	if($k <= 0)
 	{
 		echo "<div class=\"error span-15\">ERROR: K must be a positive integer greater than 0</div>";
@@ -50,7 +50,7 @@ function kmeans($data, $k) {
         $oldCentroids = randomCentroids($data, $k);
 	while (true)
 	{
-		$clusters = assign_points($data, $oldCentroids, $k);
+		$clusters = assign_points($data, $oldCentroids, $k, $max_distance);
 		$newCentroids = calcCenter($clusters, $data);
 		if ($oldCentroids === $newCentroids)
 		{
@@ -119,7 +119,7 @@ function dist($v1, $v2)
 * @param array $centroids The array of centroids
 * @param int $k The number of clusters
 */
-function assign_points($data, $centroids, $k)
+function assign_points($data, $centroids, $k, $max_distance)
 {
 	foreach ($data as $datum_index => $datum)
 	{
@@ -131,6 +131,12 @@ function assign_points($data, $centroids, $k)
 	foreach ($distances as $distance_index => $distance)
 	{
 		$which_cluster = min_key($distance);
+
+		// if a point is too far from its centroid, do not include it in this iteration
+		if ($distances[$which_cluster] > $max_distance) {
+			continue;
+		}
+
 		$tentative_clusters[$which_cluster][] = $distance_index;
 		$distances_from_clusters = array("$distance_index" => $distance);
 	}
