@@ -61,7 +61,7 @@ function get_points_by_range($xmin,$xmax,$ymin,$ymax){
 }
 function get_points_by_range_and_interest($xmin,$xmax,$ymin,$ymax,$prediction){
 	global $db;
-	$res=$db->query("SELECT * FROM points WHERE `x`>=$xmin AND `x`<=$xmax AND `y`>=$ymin AND `y`<=$ymax AND `label`='$prediction'",0);
+	$res=$db->query("SELECT * FROM points WHERE `label`='$prediction' AND `x`>=$xmin AND `x`<=$xmax AND `y`>=$ymin AND `y`<=$ymax",0);
 	$row=mysql_fetch_array($res);
 	$points = array();
 	while($row=mysql_fetch_array($res)){

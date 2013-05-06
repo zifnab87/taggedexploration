@@ -144,14 +144,12 @@ $(function() {
 
 
 	function initialize(element){
-		var parwidth = element.parents("#range").width();
-		var parleft = element.parents("#range").height();
-		var posx = parseInt(element.find(".posx").text());
-		var posy = parseInt(element.find(".posy").text());
-		numofcellsx = parseInt(Math.floor(viewportwidth/(cellwidth+1)));
-		numofcellsy = parseInt(Math.floor(viewportheight/(cellheight+1)));
-		viewportwidth = (numofcellsx*(cellwidth+1)-1);
-		viewportheight = (numofcellsy*(cellheight+1)-1);
+		//var posx = parseInt(element.find(".posx").text());
+		//var posy = parseInt(element.find(".posy").text());
+		numofcellsx = parseInt(Math.floor(viewportwidth/(cellwidth+zoom_level)));
+		numofcellsy = parseInt(Math.floor(viewportheight/(cellheight+zoom_level)));
+		viewportwidth = (numofcellsx*(cellwidth+zoom_level)-zoom_level);
+		viewportheight = (numofcellsy*(cellheight+zoom_level)-zoom_level);
 		//reset the viewport size after the margins
 		$("#range").width(viewportwidth);
 		$("#range").height(viewportheight);
@@ -164,14 +162,14 @@ $(function() {
 		viewportstartleft = viewportleft; //232
 		viewportstarttop = viewporttop; //101
 
-		var curposx = posx;
-		var curposy = posy;
-		fetch(0,numofcellsx,0,numofcellsy);
+		//var curposx = posx;
+		//var curposy = posy;
+	
 
-		$("#grid").find(".maxcolumn").text(numofcellsx);
-		$("#grid").find(".maxrow").text(numofcellsy);
+		//$("#grid").find(".maxcolumn").text(numofcellsx);
+		//$("#grid").find(".maxrow").text(numofcellsy);
 
-		recalculate_size($("#grid"));
+		//recalculate_size($("#grid"));
 		//denote_visible($("#grid"));
 
 	}
@@ -220,7 +218,7 @@ $(function() {
 	}
 
 
-	function denote_visible(elem){
+	/*function denote_visible(elem){
 		var top = $("#range").offset().top;
 		var left = $("#range").offset().left;
 		var bottom = top + $("#range").height();
@@ -235,7 +233,7 @@ $(function() {
 			}
 		});
 		//console.log("visible cells:"+$(".visible").length);
-	}
+	}*/
 	//finds the visible boundaries of the viewport from the  visible cells and returns a tuple f min/max rows/columns
 	/*function find_visible_boundaries(){
 
@@ -270,6 +268,8 @@ $(function() {
 
 
 	function pan(){
+		
+		$(".arrow-container").hide();
 		var new_viewportleft = $("#viewport").position().left;
 		var leftdist = new_viewportleft - viewportleft;
 		viewportleft = new_viewportleft;
@@ -281,8 +281,8 @@ $(function() {
 		leftmostpixeltop += topdist;
 		viewportleftdif = viewportstartleft - leftmostpixelleft;
 		viewporttopdif = viewportstarttop - leftmostpixeltop;
-		var mincol = Math.ceil(viewportleftdif / (cellwidth+1));
-		var minrow = Math.ceil(viewporttopdif / (cellheight+1));
+		var mincol = Math.ceil(viewportleftdif / (cellwidth+zoom_level));
+		var minrow = Math.ceil(viewporttopdif / (cellheight+zoom_level));
 		var maxcol = mincol + numofcellsx;
 		var maxrow = minrow + numofcellsy;
 		fetch(mincol,maxcol,minrow,maxrow);
@@ -356,13 +356,13 @@ $(function() {
 		  success: function(data){
 		  			update_predict_vis($.trim(data));
 		  			prediction = find_prediction();
-		  			var curleft = mincol*(cellwidth+1);
-					var curtop = minrow*(cellheight+1);
+		  			var curleft = mincol*(cellwidth+zoom_level);
+					var curtop = minrow*(cellheight+zoom_level);
 					var startleft = curleft;
-					var newminrow = 3*minrow - 2*maxrow;
-					var newmaxrow = 3*maxrow - 2*minrow;
-					var newmincol = 3*mincol - 2*maxcol;
-					var newmaxcol = 3*maxcol - 2*mincol;
+					var newminrow = 2.5*minrow - 1.5*maxrow;
+					var newmaxrow = 2.5*maxrow - 1.5*minrow;
+					var newmincol = 2.5*mincol - 1.5*maxcol;
+					var newmaxcol = 2.5*maxcol - 1.5*mincol;
 					minrow = newminrow;
 					maxrow = newmaxrow;
 					mincol = newmincol;
@@ -406,8 +406,8 @@ $(function() {
 						
 						var col = result[0]["x"];
 						var row = result[0]["y"];
-						curleft = parseInt(result[0]["x"]-db_offsety)*(cellwidth+1);
-						curtop = parseInt(result[0]["y"]-db_offsetx)*(cellheight+1);
+						curleft = parseInt(result[0]["x"]-db_offsety)*(cellwidth+zoom_level);
+						curtop = parseInt(result[0]["y"]-db_offsetx)*(cellheight+zoom_level);
 						//console.log(result[0]["y"]+","+result[0]["x"]);
 						if($(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).length!=1){
 							addcelltogrid(row,col,curleft,curtop,$("#grid"),result[0],true);
@@ -437,9 +437,10 @@ $(function() {
 	}
 	//if an arrow is clicked make the big jump
 	function viewport_jump(newcenterx,newcentery){
-		var newleft = parseInt(newcenterx - viewportwidth/2);
-		var newtop = parseInt(newcentery - viewportheight/2);
+		var newleft = parseInt(-newcenterx + viewportwidth/2);
+		var newtop = parseInt(-newcentery + viewportheight/2);
 		//$("#viewport").css("left",newleft+"px").css("right",newright+"px");
+		$(".arrow-container").hide();
 		$("#viewport").animate({left: newleft+"px",top: newtop+"px"},3000,function(){
 			pan();
 		});
@@ -448,6 +449,7 @@ $(function() {
 
 	function suggest(mincol,maxcol,minrow,maxrow,prediction){
 		//take all the prefetched with the color of prediction
+		$(".arrow-container").hide();
 		if (prediction!=0){
 			console.log(prediction);
 			var nodes = $(".prefetched.color-"+prediction).not(".visited");
@@ -465,15 +467,15 @@ $(function() {
 			   		'q':'suggest',
 			   		'x':serialize(x_array),
 			   		'y':serialize(y_array),
-			   		'k': "4",
+			   		'k': "16",
 			   		'min_cluster_size': "100",
-			   		'max_distance':"5"
+			   		'max_distance':"10"
 			    },
 		    	success: function(data){
 		    		var centroids = $.parseJSON(data);
 		    		var centroid = $(this)[0];
-		    		var curleft = mincol*(cellwidth+1);
-					var curtop = minrow*(cellheight+1);
+		    		var curleft = mincol*(cellwidth+zoom_level);
+					var curtop = minrow*(cellheight+zoom_level);
 					var startleft = curleft;
 					$(".centroid").removeClass("centroid");
 					$.each(centroids,function(i){
@@ -481,20 +483,25 @@ $(function() {
 						
 						var col = centroid["x"];
 						var row = centroid["y"];
-						curleft = parseInt(centroid["x"]-db_offsetx)*(cellwidth+1);
-						curtop = parseInt(centroid["y"]-db_offsety)*(cellheight+1);
-						//console.log(result[0]["y"]+","+result[0]["x"]);
-						//if($(".cell.row-"+centroid["y"]+".col-"+centroid["x"]).length!=1){
+						//take the top-4 centroids to visualize
+						if (i<4){
+							curleft = parseInt(centroid["x"]-db_offsetx)*(cellwidth+zoom_level);
+							curtop = parseInt(centroid["y"]-db_offsety)*(cellheight+zoom_level);
+							//console.log(result[0]["y"]+","+result[0]["x"]);
+							//if($(".cell.row-"+centroid["y"]+".col-"+centroid["x"]).length!=1){
 
-						visualize_centroid(row,col,curleft,curtop,$("#grid"));
-						//console.log("!!!"+minrow);
-						console.log("centerx "+parseInt((mincol-db_offsetx+maxcol-db_offsetx)/2));
-						console.log("centery "+parseInt((minrow-db_offsety+maxrow-db_offsety)/2));
-						var viewportcenterx = parseInt((mincol-db_offsetx+maxcol-db_offsetx)/2)*(cellwidth+1);
-						var viewportcentery = parseInt((minrow-db_offsety+maxrow-db_offsety)/2)*(cellheight+1);
-						var centroidy = curtop;
-						var centroidx = curleft;
-						visualize_arrow(centroidy,centroidx, viewportcentery,viewportcenterx,i);
+							visualize_centroid(row,col,curleft,curtop,$("#grid"));
+							//console.log("!!!"+minrow);
+							console.log("centerx "+parseInt((mincol-db_offsetx+maxcol-db_offsetx)/2));
+							console.log("centery "+parseInt((minrow-db_offsety+maxrow-db_offsety)/2));
+							var viewportcenterx = parseInt((mincol-db_offsetx+maxcol-db_offsetx)/2)*(cellwidth+zoom_level);
+							var viewportcentery = parseInt((minrow-db_offsety+maxrow-db_offsety)/2)*(cellheight+zoom_level);
+							var centroidy = curtop;
+							var centroidx = curleft;	
+							$(".arrow-container").show();
+							visualize_arrow(centroidy,centroidx, viewportcentery,viewportcenterx,i);
+
+						}
 
 							//console.log("did add");
 							//$(".cell.row-"+result[0]["y"]+".col-"+result[0]["x"]).addClass("visible");
@@ -527,6 +534,14 @@ $(function() {
 		var argtangent2 = Math.atan2((centroidy-viewportcentery),(centroidx-viewportcenterx));
 		var degrees = argtangent2*57.29;
 		console.log(index);
+		$(".arrow-container .arrow-"+index).remove();
+		$(".arrow-container").append("<div class='arrow arrow-"+index+"'><div class='css-centroidy' style='display:none'>"+centroidy+"</div><div class='css-centroidx' style='display:none'>"+centroidx+"</div></div>")
+		$(".arrow-container .arrow-"+index).mouseover(function(){ $(this).css("opacity","0.9")});
+		$(".arrow-container .arrow-"+index).mouseout(function(){ $(this).css("opacity","0.3")});
+		$(".arrow-container .arrow-"+index).click(function(){ 
+			var centroidy = $(this).find(".css-centroidy").text();
+			var centroidx = $(this).find(".css-centroidx").text();
+			viewport_jump(centroidx,centroidy)});
 		$(".arrow-container .arrow-"+index).css("text-indent","0px");
 		$(".arrow-container .arrow-"+index).animate(
 			{textIndent: degrees},{
@@ -539,8 +554,8 @@ $(function() {
 	function fetch(mincol,maxcol,minrow,maxrow){
 
 		var results  = null;
-		var curleft = mincol*(cellwidth+1);
-		var curtop = minrow*(cellheight+1);
+		var curleft = mincol*(cellwidth+zoom_level);
+		var curtop = minrow*(cellheight+zoom_level);
 		var startleft = curleft;
 		minrow += db_offsety;
 		maxrow += db_offsety;
@@ -565,17 +580,26 @@ $(function() {
 						for (var j=mincol; j<maxcol; j++){
 							//check if doesn't exist:
 							if($(".cell.row-"+i+".col-"+j).length!=1){
-								addcelltogrid(i,j,curleft,curtop,$("#grid"),results[i][j],false);
+								//if the row doesn't have any elements then the array of the row is not defined
+								if (results && results[i] && results[i][j]){
+									addcelltogrid(i,j,curleft,curtop,$("#grid"),results[i][j],false);	
+								}
+								else {
+									var dummy_result = new Object();
+									dummy_result.label = 0;
+									addcelltogrid(i,j,curleft,curtop,$("#grid"),dummy_result,false);
+								}
+
 								//countadded++;
 							}
 							//denote as visible
 							$(".cell.row-"+i+".col-"+j).addClass("visible");
 							//denote as visited
 							$(".cell.row-"+i+".col-"+j).addClass("visited");
-							curleft = (curleft + cellwidth+1);
+							curleft = (curleft + cellwidth+zoom_level);
 						}
 						curleft = startleft;
-						curtop = (curtop + cellheight+1);
+						curtop = (curtop + cellheight+zoom_level);
 
 					}
 
@@ -615,6 +639,68 @@ $(function() {
 		});
 	});
 
+
+	$(".zoom-level").change(function(){
+			var old_zoom_level = zoom_level;
+			zoom_level = $(this).val();
+			cellwidth = 40*zoom_level;
+			cellheight = 40*zoom_level;
+			var factor = (zoom_level/old_zoom_level);
+			
+			numofcellsx = Math.ceil(numofcellsx / factor);
+			numofcellsy = Math.ceil(numofcellsx / factor);
+			//maxrow = Math.ceil(maxrow / factor);
+			//maxcol = Math.ceil(maxcol / factor);
+			
+
+			$(".cell").css("width",cellwidth+"px");
+			$(".cell").css("height",cellheight+"px");
+			
+			$(".cell").each(function(){
+				$(this).css("left",$(this).css("left").replace(/[^-\d\.]/g, '')*factor+"px");
+			});
+			$(".cell").each(function(){
+				$(this).css("top",$(this).css("top").replace(/[^-\d\.]/g, '')*factor+"px");
+			});
+			viewportstartleft = viewportstartleft * factor;
+			viewportstarttop = viewportstarttop * factor;
+			leftmostpixelleft = leftmostpixelleft * factor;
+			leftmostpixeltop = leftmostpixeltop * factor;
+			initialize($("#grid"));
+			//viewportleft = $("#viewport").position().left;
+			//viewporttop = $("#viewport").position().top;
+			//viewportstartleft = viewportleft; //232
+			//viewportstarttop = viewporttop;*/
+
+			/*
+			
+			var old_cellwidth = cellwidth;
+			var old_cellheight = cellheight;
+			cellwidth = old_cellwidth*factor;
+			cellheight = old_cellheight*factor;
+			
+
+			//numofcellsx = parseInt(Math.floor(viewportwidth/(cellwidth+zoom_level)));
+			//numofcellsy = parseInt(Math.floor(viewportheight/(cellheight+zoom_level)));
+			var old_numofcellsx = numofcellsx;
+			var old_numofcellsy = numofcellsy;
+
+
+			//var old_viewportwidth = viewportwidth;
+			//var old_viewportheight = viewportheight;
+
+			//viewportwidth = old_viewportwidth / (zoom_level/old_zoom_level);
+			//viewportheight = old_viewportheight / (zoom_level/old_zoom_level);
+
+			console.log(numofcellsx+"x");
+			console.log(numofcellsy+"y");
+
+
+
+			//reset the viewport size after the margin
+				//leftmost pixel
+			*/
+	});
 	
 
 	$(document).ready(function() {
@@ -622,6 +708,7 @@ $(function() {
 				{
 					drag: function() {
 						//recalculate_size($("#grid"));
+						$(".arrow-container").hide();
 					},
 					stop: function(){
 							
@@ -638,7 +725,8 @@ $(function() {
 			console.log("ready");
 
 			initialize($("#grid"));
-			viewport_jump(100,100);
+			fetch(0,numofcellsx,0,numofcellsy);
+			//viewport_jump(697,-328);
 			//autogrowupgrade();
 			//document.execCommand("enableObjectResizing", false, false);
 
