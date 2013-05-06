@@ -7,8 +7,8 @@
 
 define("JITTER", 2);
 
-function find_centroids($data, $k, $max_distance) {
-	$clusters = kmeans($data, $k, $max_distance);
+function find_centroids($data, $k) {
+	$clusters = kmeans($data, $k);
 	$centroids = $clusters[0];
 	$pts = $clusters[1];
 	$rounded_centroids = array();
@@ -30,7 +30,7 @@ function find_centroids($data, $k, $max_distance) {
 * @param int $k The number of clusters to use 
 * @return array A mixed array contiaining an array of centroids, and k arrays containing clusters and the indeces of the points it contains
 */
-function kmeans($data, $k, $max_distance) {
+function kmeans($data, $k) {
 	if($k <= 0)
 	{
 		echo "<div class=\"error span-15\">ERROR: K must be a positive integer greater than 0</div>";
@@ -39,7 +39,7 @@ function kmeans($data, $k, $max_distance) {
         $oldCentroids = randomCentroids($data, $k);
 	while (true)
 	{
-		$clusters = assign_points($data, $oldCentroids, $k, $max_distance);
+		$clusters = assign_points($data, $oldCentroids, $k);
 		$newCentroids = calcCenter($clusters, $data);
 		if ($oldCentroids === $newCentroids)
 		{
@@ -108,7 +108,7 @@ function dist($v1, $v2)
 * @param array $centroids The array of centroids
 * @param int $k The number of clusters
 */
-function assign_points($data, $centroids, $k, $max_distance)
+function assign_points($data, $centroids, $k)
 {
 	foreach ($data as $datum_index => $datum)
 	{
