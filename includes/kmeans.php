@@ -10,12 +10,17 @@ define("JITTER", 2);
 function find_centroids($data, $k, $max_distance) {
 	$clusters = kmeans($data, $k, $max_distance);
 	$centroids = $clusters[0];
-	$pts = array_slice($clusters, 1);
+	$pts = $clusters[1];
 	$rounded_centroids = array();
 	for ($i = 0; $i < sizeof($centroids); ++$i) {
 		$pt = $centroids[$i];
 		$rounded_centroids[] = array("x" => floor($pt[0]), "y" => floor($pt[1]), "count" => sizeof($pts[$i]));
 	}
+	$counts = array();
+	foreach ($rounded_centroids as $k => $v) {
+		$counts["count"][$k] = $v["count"];
+	}
+	array_multisort($counts["count"], SORT_DESC, $rounded_centroids);
 	return $rounded_centroids;
 }
 
