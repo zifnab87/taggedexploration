@@ -134,7 +134,7 @@ $(function() {
 	db_offsety = 100;
 	max_num_of_classes = 7;
 	training_set_size = 40;
-	markov_model_order = 1;
+	markov_model_order = 2;
 	classes = new Array(1,2,3,4,5,6,7);
 	zoom_level = 1;
 	cellwidth = 40*zoom_level;
@@ -438,10 +438,11 @@ $(function() {
 	//if an arrow is clicked make the big jump
 	function viewport_jump(newcenterx,newcentery){
 		var newleft = parseInt(newcenterx - viewportwidth/2);
-		var newright = parseInt(newcentery - viewportheight/2);
+		var newtop = parseInt(newcentery - viewportheight/2);
 		//$("#viewport").css("left",newleft+"px").css("right",newright+"px");
-		$("#viewport").animate({left: '250px'},'slow');
-		//pan();
+		$("#viewport").animate({left: newleft+"px",top: newtop+"px"},3000,function(){
+			pan();
+		});
 	}
 
 
