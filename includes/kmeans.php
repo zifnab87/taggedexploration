@@ -8,29 +8,11 @@
 define("JITTER", 2);
 
 function find_centroids($data, $k, $max_distance) {
-	$clusters = kmeans($data, $k, $max_distance);
+	$centroids = kmeans($data, $k, $max_distance)[0];
 	$rounded_centroids = array();
-	for ($i = 0; $i < $k; ++$i) {
-		$centroids = $clusters[0][$i];
-//		$pts = $clusters[1][$i];
-	
-		// skip this centroid if the cluster size is too small
-//		if (sizeof($pts) < $min_cluster_size) {
-//			continue;
-//		}
-
-//		$total_distance = 0;
-//		for ($j = 0; $j < sizeof($pts); ++$j) {
-//			$pt = $pts[$j];
-//			$dx = $pt[0] - $centroid[0];
-//			$dy = $pt[1] - $centroid[1];
-//			$total_distance += sqrt($dx * $dx + $dy * $dy);
-//		}
-
-		// only add this centroid if the cluster is tight enough
-//		if ($total_distance / sizeof($pts) < $max_avg_distance) {
-			$rounded_centroids[] = array( "x" => floor($centroid[0]), "y" => floor($centroid[1]));
-//		}
+	for ($i = 0; $i < sizeof($centroids); ++$i) {
+		$pt = $centroids[$i];
+		$rounded_centroids[] = array( "x" => floor($pt[0]), "y" => floor($pt[1]));
 	}
 	return $rounded_centroids;
 }
@@ -133,9 +115,9 @@ function assign_points($data, $centroids, $k, $max_distance)
 		$which_cluster = min_key($distance);
 
 		// if a point is too far from its centroid, do not include it in this iteration
-		if ($distances[$which_cluster] > $max_distance) {
-			continue;
-		}
+//		if ($distances[$which_cluster] > $max_distance) {
+//			continue;
+//		}
 
 		$tentative_clusters[$which_cluster][] = $distance_index;
 		$distances_from_clusters = array("$distance_index" => $distance);
