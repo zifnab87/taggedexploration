@@ -8,11 +8,13 @@
 define("JITTER", 2);
 
 function find_centroids($data, $k, $max_distance) {
-	$centroids = kmeans($data, $k, $max_distance)[0];
+	$clusters = kmeans($data, $k, $max_distance);
+	$centroids = $clusters[0];
+	$pts = array_slice($clusters, 1);
 	$rounded_centroids = array();
 	for ($i = 0; $i < sizeof($centroids); ++$i) {
 		$pt = $centroids[$i];
-		$rounded_centroids[] = array( "x" => floor($pt[0]), "y" => floor($pt[1]));
+		$rounded_centroids[] = array("x" => floor($pt[0]), "y" => floor($pt[1]), "count" => sizeof($pts[$i]));
 	}
 	return $rounded_centroids;
 }
@@ -113,12 +115,6 @@ function assign_points($data, $centroids, $k, $max_distance)
 	foreach ($distances as $distance_index => $distance)
 	{
 		$which_cluster = min_key($distance);
-
-		// if a point is too far from its centroid, do not include it in this iteration
-//		if ($distances[$which_cluster] > $max_distance) {
-//			continue;
-//		}
-
 		$tentative_clusters[$which_cluster][] = $distance_index;
 		$distances_from_clusters = array("$distance_index" => $distance);
 	}
